@@ -16,6 +16,8 @@ PxScene* scene;
 PxRigidDynamic* box;
 PxRigidStatic* plane;
 
+int step = 0;
+
 ///Initialise PhysX objects
 bool PxInit()
 {
@@ -80,7 +82,7 @@ void InitScene()
 	scene->setGravity(PxVec3(0.f, -9.81f, 0.f));
 
 	//materials
-	PxMaterial* default_material = physics->createMaterial(0.f, 0.f, 0.f);   //static friction, dynamic friction, restitution
+	PxMaterial* default_material = physics->createMaterial(0.f, .0f, .5f);   //static friction, dynamic friction, restitution
 
 	//create a static plane (XZ)
 	plane = PxCreatePlane(*physics, PxPlane(PxVec3(0.f, 1.f, 0.f), 0.f), *default_material);
@@ -93,13 +95,34 @@ void InitScene()
 	//update the mass of the box
 	PxRigidBodyExt::updateMassAndInertia(*box, 1.f); //density of 1kg/m^3
 	scene->addActor(*box);
+
+	PxReal mass = box->getMass();
+
+	std::cout << "Mass: " << mass << std::endl;
+
+	// Apply instant force of 100N to the box.
+	// box->addForce(PxVec3(100.f, .0f, .0f), PxForceMode::eIMPULSE);
 }
 
 /// Perform a single simulation step
 void Update(PxReal delta_time)
 {
 	scene->simulate(delta_time);
+	step++;
+	std::cout << step << std::endl;
 	scene->fetchResults(true);
+
+	// Set x to 10 after 10 simulation steps.
+	//if (step == 10)
+	//{
+	//	box->setGlobalPose(PxTransform(PxVec3(box->getGlobalPose().p.x + 10.f, box->getGlobalPose().p.y, box->getGlobalPose().p.z)));
+	//}
+
+	// Set velocity to 0 after 10meters of travel along the x axis
+	//if (box->getGlobalPose().p.x > 10.f)
+	//{
+	//	box->setLinearVelocity(PxVec3(.0f, .0f, .0f));
+	//}
 }
 
 /// The main function
