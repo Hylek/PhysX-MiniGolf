@@ -41,6 +41,15 @@ namespace PhysicsEngine
 	{
 		Plane* plane;
 		Box* box;
+		Box* box2;
+		Box* box3;
+		Sphere* ball;
+		PxMaterial* box1Mat;
+		PxMaterial* box2Mat;
+		PxMaterial* box3Mat;
+		PxPhysics* physics = GetPhysics();
+
+
 
 	public:
 		///A custom scene class
@@ -55,35 +64,133 @@ namespace PhysicsEngine
 		{
 			SetVisualisation();			
 
-			GetMaterial()->setDynamicFriction(.2f);
+			//GetMaterial()->setDynamicFriction(.2f);
+			//box1Mat->setRestitution(.5f);
+			//box2Mat->setRestitution(1.f);
+			//box3Mat->setRestitution(.25f);
 
 			plane = new Plane();
-			plane->Color(PxVec3(210.f/255.f,210.f/255.f,210.f/255.f));
+			plane->Color(PxVec3(50.f/255.f,210.f/255.f,210.f/255.f));
 			Add(plane);
 
-			box = new Box(PxTransform(PxVec3(.0f, 10.f, .0f)));
-			box->Color(PxVec3(255.f / 255.f, 132.f / 255.f, 13.f / 255.f));
-			Add(box);
+			//box = new Box(PxTransform(PxVec3(.0f, 10.f, .0f)));
+			//box->Color(PxVec3(255.f / 255.f, 132.f / 255.f, 13.f / 255.f));
+			//box->Material(box1Mat);
+			//Add(box);
 
-			box = new Box(PxTransform(PxVec3(2.f, 10.f, .0f)));
-			box->Color(PxVec3(232.f / 255.f, 12.f / 255.f, 198.f / 255.f));
-			Add(box);
+			//box2 = new Box(PxTransform(PxVec3(2.f, 10.f, .0f)));
+			//box2->Color(PxVec3(232.f / 255.f, 12.f / 255.f, 198.f / 255.f));
+			//box->Material(box2Mat);
+			//Add(box2);
 
-			box = new Box(PxTransform(PxVec3(-2.f, 10.f, .0f)));
-			box->Color(PxVec3(164.f / 255.f, 13.f / 255.f, 255.f / 255.f));
-			Add(box);
+			//box3 = new Box(PxTransform(PxVec3(-2.f, 10.f, .0f)));
+			//box3->Color(PxVec3(164.f / 255.f, 13.f / 255.f, 255.f / 255.f));
+			//box->Material(box3Mat);
+			//Add(box3);
 
-			//for (int i = 0; i < 100; i++)
+			for (int i = 0; i < 10; i++)
+			{
+				ball = new Sphere(PxTransform(PxVec3(.0f, i + 50.f, .0f)));
+				ball->Color(color_palette[0]);
+				//ball->Material(box2Mat);
+				Add(ball);
+			}
+
+			//PxClothParticle vertices[] = {
+			//	PxClothParticle(PxVec3(0.0f, 0.0f, 0.0f), 0.0f),
+			//	PxClothParticle(PxVec3(0.0f, 1.0f, 0.0f), 1.0f),
+			//	PxClothParticle(PxVec3(1.0f, 0.0f, 0.0f), 1.0f),
+			//	PxClothParticle(PxVec3(1.0f, 1.0f, 0.0f), 1.0f)
+			//};
+
+			//PxU32 primitives[] = { 0, 1, 3, 2 };
+
+			//PxClothMeshDesc meshDesc;
+			//meshDesc.points.data = vertices;
+			//meshDesc.points.count = 4;
+			//meshDesc.points.stride = sizeof(PxClothParticle);
+
+			//meshDesc.invMasses.data = &vertices->invWeight;
+			//meshDesc.invMasses.count = 4;
+			//meshDesc.invMasses.stride = sizeof(PxClothParticle);
+
+			//meshDesc.quads.data = primitives;
+			//meshDesc.quads.count = 1;
+			//meshDesc.quads.stride = sizeof(PxU32) * 4;
+
+			//PxClothFabric* fabric = PxClothFabricCreate(*physics, meshDesc, PxVec3(0, -1, 0));
+			//PxTransform pose = PxTransform(PxIdentity);
+			//PxCloth* cloth = physics->createCloth(pose, *fabric, vertices, PxClothFlags());
+			////Add(cloth);
+			//
+			//PxClothCollisionSphere spheres[2] =
 			//{
-			//	box = new Box(PxTransform(PxVec3(.0f, i + 50.f, .0f)));
-			//	box->Color(color_palette[0]);
-			//	Add(box);
+			//	PxClothCollisionSphere(PxVec3(-1.0f, 0.0f, 0.0f), 0.5f),
+			//	PxClothCollisionSphere(PxVec3(1.0f, 0.0f, 0.0f), 0.25f)
+			//};
+
+			//cloth->setCollisionSpheres(spheres, 2);
+			//cloth->addCollisionCapsule(0, 1);
+			//cloth->addCollisionPlane(PxClothCollisionPlane(PxVec3(0.0f, 1.0f, 0.0f), 0.0f));
+			//cloth->addCollisionConvex(1 << 0); // Convex references the first plane
+
+			//PxClothCollisionTriangle triangles[4] = {
+			//	PxClothCollisionTriangle(PxVec3(0.0f, 0.0f, 0.0f),
+			//	PxVec3(1.0f, 0.0f, 0.0f),
+			//	PxVec3(0.0f, 1.0f, 0.0f)),
+			//	PxClothCollisionTriangle(PxVec3(1.0f, 0.0f, 0.0f),
+			//	PxVec3(0.0f, 0.0f, 1.0f),
+			//	PxVec3(0.0f, 1.0f, 0.0f)),
+			//	PxClothCollisionTriangle(PxVec3(0.0f, 0.0f, 1.0f),
+			//	PxVec3(0.0f, 0.0f, 0.0f),
+			//	PxVec3(0.0f, 1.0f, 0.0f)),
+			//	PxClothCollisionTriangle(PxVec3(0.0f, 0.0f, 0.0f),
+			//	PxVec3(0.0f, 0.0f, 1.0f),
+			//	PxVec3(1.0f, 0.0f, 0.0f)),
+			//};
+
+			//static PxVec3 weights[] =
+			//{
+			//	PxVec3(1.0f / 3, 1.0f / 3, 1.0f / 3), // center point
+			//	PxVec3(4.0f / 6, 1.0f / 6, 1.0f / 6), // off-center point
+			//};
+
+			//PxU32 numFaces = meshDesc.triangles.count;
+			//assert(meshDesc.flags & PxMeshFlag::e16_BIT_INDICES);
+			//PxU8* triangles = (PxU8*)meshDesc.triangles.data;
+
+			//PxU32 indices[] = new PxU32[4 * 4 * numFaces];
+			//for (PxU32 i = 0, *it = indices; i < numFaces; i++)
+			//{
+			//	PxU16* triangle = (PxU16*)triangles;
+			//	PxU32 v0 = triangle[0];
+			//	PxU32 v1 = triangle[1];
+			//	PxU32 v2 = triangle[2];
+
+			//	// center
+			//	*it++ = v0; *it++ = v1; *it++ = v2; *it++ = 0;
+
+			//	// off centers
+			//	*it++ = v0; *it++ = v1; *it++ = v2; *it++ = 1;
+			//	*it++ = v1; *it++ = v2; *it++ = v0; *it++ = 1;
+			//	*it++ = v2; *it++ = v0; *it++ = v1; *it++ = 1;
+
+			//	triangles += meshDesc.triangles.stride;
 			//}
+
+			//cloth->setVirtualParticles(numFaces * 4, indices, 2, weights);
+			//delete[] indices;
 		}
 
 		//Custom udpate function
 		virtual void CustomUpdate() 
 		{
+			PxVec3 up = PxVec3(.0f, 1.f, .0f);
+			PxVec3 vel = ((PxRigidBody*)ball->Get())->getLinearVelocity();
+			PxReal dir = vel.normalize();
+
+			PxVec3 crs = vel.cross(up);
+			PxQuat rot = PxQuat();
 		}
 	};
 }
