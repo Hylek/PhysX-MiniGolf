@@ -41,6 +41,7 @@ namespace PhysicsEngine
 	{
 		Plane* plane;
 		Box* box;
+		PxTransform pose;
 
 	public:
 		///A custom scene class
@@ -65,13 +66,9 @@ namespace PhysicsEngine
 			box->Color(PxVec3(255.f / 255.f, 132.f / 255.f, 13.f / 255.f));
 			Add(box);
 
-			box = new Box(PxTransform(PxVec3(2.f, 10.f, .0f)));
-			box->Color(PxVec3(232.f / 255.f, 12.f / 255.f, 198.f / 255.f));
-			Add(box);
-
-			box = new Box(PxTransform(PxVec3(-2.f, 10.f, .0f)));
-			box->Color(PxVec3(164.f / 255.f, 13.f / 255.f, 255.f / 255.f));
-			Add(box);
+			pose = ((PxRigidBody*)box->Get())->getGlobalPose();
+			pose.q = PxQuat(1.f, PxVec3(.0f, .0f, 1.f));
+			((PxRigidBody*)box->Get())->getGlobalPose();
 
 			//for (int i = 0; i < 100; i++)
 			//{
@@ -84,6 +81,13 @@ namespace PhysicsEngine
 		//Custom udpate function
 		virtual void CustomUpdate() 
 		{
+			//((PxRigidBody*)box->Get())->setGlobalPose(PxTransform(PxVec3(.0f, .0f, .0f), PxQuat(1.f, PxVec3(.0f, 1.f, .0f))));
+			//((PxRigidBody*)box->Get())->addForce(PxVec3(10.f, .0f, .0f));
+			pose.q = PxQuat(10.f, PxVec3(1.f, .0f, .0f));
+			((PxRigidBody*)box->Get())->setGlobalPose(pose * pose);
+
+
+			std::cout << 1 << std::endl;
 		}
 	};
 }
