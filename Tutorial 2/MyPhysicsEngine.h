@@ -43,6 +43,8 @@ namespace PhysicsEngine
 		Box* box;
 		PxTransform pose;
 
+
+
 	public:
 		///A custom scene class
 		void SetVisualisation()
@@ -56,15 +58,19 @@ namespace PhysicsEngine
 		{
 			SetVisualisation();			
 
-			GetMaterial()->setDynamicFriction(.2f);
+			//GetMaterial()->setDynamicFriction(.2f);
+			//box1Mat->setRestitution(.5f);
+			//box2Mat->setRestitution(1.f);
+			//box3Mat->setRestitution(.25f);
 
 			plane = new Plane();
-			plane->Color(PxVec3(210.f/255.f,210.f/255.f,210.f/255.f));
+			plane->Color(PxVec3(50.f/255.f,210.f/255.f,210.f/255.f));
 			Add(plane);
 
-			box = new Box(PxTransform(PxVec3(.0f, 10.f, .0f)));
-			box->Color(PxVec3(255.f / 255.f, 132.f / 255.f, 13.f / 255.f));
-			Add(box);
+			//box = new Box(PxTransform(PxVec3(.0f, 10.f, .0f)));
+			//box->Color(PxVec3(255.f / 255.f, 132.f / 255.f, 13.f / 255.f));
+			//box->Material(box1Mat);
+			//Add(box);
 
 			pose = ((PxRigidBody*)box->Get())->getGlobalPose();
 			pose.q = PxQuat(1.f, PxVec3(.0f, .0f, 1.f));
@@ -72,10 +78,61 @@ namespace PhysicsEngine
 
 			//for (int i = 0; i < 100; i++)
 			//{
-			//	box = new Box(PxTransform(PxVec3(.0f, i + 50.f, .0f)));
-			//	box->Color(color_palette[0]);
-			//	Add(box);
+			//	PxClothCollisionSphere(PxVec3(-1.0f, 0.0f, 0.0f), 0.5f),
+			//	PxClothCollisionSphere(PxVec3(1.0f, 0.0f, 0.0f), 0.25f)
+			//};
+
+			//cloth->setCollisionSpheres(spheres, 2);
+			//cloth->addCollisionCapsule(0, 1);
+			//cloth->addCollisionPlane(PxClothCollisionPlane(PxVec3(0.0f, 1.0f, 0.0f), 0.0f));
+			//cloth->addCollisionConvex(1 << 0); // Convex references the first plane
+
+			//PxClothCollisionTriangle triangles[4] = {
+			//	PxClothCollisionTriangle(PxVec3(0.0f, 0.0f, 0.0f),
+			//	PxVec3(1.0f, 0.0f, 0.0f),
+			//	PxVec3(0.0f, 1.0f, 0.0f)),
+			//	PxClothCollisionTriangle(PxVec3(1.0f, 0.0f, 0.0f),
+			//	PxVec3(0.0f, 0.0f, 1.0f),
+			//	PxVec3(0.0f, 1.0f, 0.0f)),
+			//	PxClothCollisionTriangle(PxVec3(0.0f, 0.0f, 1.0f),
+			//	PxVec3(0.0f, 0.0f, 0.0f),
+			//	PxVec3(0.0f, 1.0f, 0.0f)),
+			//	PxClothCollisionTriangle(PxVec3(0.0f, 0.0f, 0.0f),
+			//	PxVec3(0.0f, 0.0f, 1.0f),
+			//	PxVec3(1.0f, 0.0f, 0.0f)),
+			//};
+
+			//static PxVec3 weights[] =
+			//{
+			//	PxVec3(1.0f / 3, 1.0f / 3, 1.0f / 3), // center point
+			//	PxVec3(4.0f / 6, 1.0f / 6, 1.0f / 6), // off-center point
+			//};
+
+			//PxU32 numFaces = meshDesc.triangles.count;
+			//assert(meshDesc.flags & PxMeshFlag::e16_BIT_INDICES);
+			//PxU8* triangles = (PxU8*)meshDesc.triangles.data;
+
+			//PxU32 indices[] = new PxU32[4 * 4 * numFaces];
+			//for (PxU32 i = 0, *it = indices; i < numFaces; i++)
+			//{
+			//	PxU16* triangle = (PxU16*)triangles;
+			//	PxU32 v0 = triangle[0];
+			//	PxU32 v1 = triangle[1];
+			//	PxU32 v2 = triangle[2];
+
+			//	// center
+			//	*it++ = v0; *it++ = v1; *it++ = v2; *it++ = 0;
+
+			//	// off centers
+			//	*it++ = v0; *it++ = v1; *it++ = v2; *it++ = 1;
+			//	*it++ = v1; *it++ = v2; *it++ = v0; *it++ = 1;
+			//	*it++ = v2; *it++ = v0; *it++ = v1; *it++ = 1;
+
+			//	triangles += meshDesc.triangles.stride;
 			//}
+
+			//cloth->setVirtualParticles(numFaces * 4, indices, 2, weights);
+			//delete[] indices;
 		}
 
 		//Custom udpate function
