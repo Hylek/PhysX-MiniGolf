@@ -183,6 +183,7 @@ namespace PhysicsEngine
 	{
 		Plane* plane;
 		Box* box, *box2, *box3;
+		Box* putterJoint;
 		MySimulationEventCallback* my_callback;
 		Putter* putter;
 		Sphere* ball;
@@ -218,26 +219,33 @@ namespace PhysicsEngine
 			//plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
 			//Add(plane);
 
-			ball = new Sphere(PxTransform(PxVec3(.0f, 10.f, -10.f)), .5f);
+			ball = new Sphere(PxTransform(PxVec3(.0f, 10.f, 0.f)), .5f);
 			ball->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
 			Add(ball);
-			((PxRigidBody*)ball->Get())->addForce(PxVec3(.0f, .0f, -15.f), PxForceMode::eIMPULSE);
+			//((PxRigidBody*)ball->Get())->addForce(PxVec3(.0f, .0f, -15.f), PxForceMode::eIMPULSE);
 			//((PxRigidBody*)ball->Get())->
 
-			box = new Box(PxTransform(PxVec3(.0f, 10.f, 5.f)));
+			box = new Box(PxTransform(PxVec3(5.f, 10.f, -25.f)));
 			box->Color(color_palette[0]);
 			//set collision filter flags
 			box->SetupFiltering(FilterGroup::ACTOR0, FilterGroup::ACTOR1);
 			//use | operator to combine more actors e.g.
 			box->SetupFiltering(FilterGroup::ACTOR0, FilterGroup::ACTOR1 | FilterGroup::ACTOR2);
 			//don't forget to set your flags for the matching actor as well, e.g.:
-			box2 = new Box(PxTransform(PxVec3(.0f, 3.f, 5.f)));
+			box2 = new Box(PxTransform(PxVec3(5.f, 3.f, -25.f)));
 			box2->SetupFiltering(FilterGroup::ACTOR1, FilterGroup::ACTOR0);
+
+			putterJoint = new Box(PxTransform(PxVec3(0.f, 10.f, 0.f)));
+			putterJoint->SetKinematic(true);
+			Add(putterJoint);
 
 			putter = new Putter(PxTransform(PxVec3(.1f, 5.f, .0f)));
 			putter->Color(color_palette[2]);
 			Add(putter);
-			((PxRigidBody*)putter->Get())->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+			//putter->SetKinematic(true);
+			//((PxRigidBody*)putter->Get())->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+			RevoluteJoint pJoint(putterJoint, PxTransform(PxVec3(0.f, -3.f, 0.f), PxQuat(PxPi / 2, PxVec3(1.f, 0.f, 0.f))), putter, PxTransform(PxVec3(0.f, 5.f, 0.f)));
+			pJoint.DriveVelocity(5);
 
 			planes = new CoursePlanes(PxTransform(PxVec3(.0f, .0f, .0f)));
 			barriers = new CourseBarriers(PxTransform(PxVec3(.0f, 1.f, .0f)));
