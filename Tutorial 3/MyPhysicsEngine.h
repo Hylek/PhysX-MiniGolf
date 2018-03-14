@@ -187,6 +187,9 @@ namespace PhysicsEngine
 		MySimulationEventCallback* my_callback;
 		Putter* putter;
 		Sphere* ball;
+		PxMaterial* barrierMaterial;
+		PxMaterial* planeMaterial;
+
 
 		// Course objects
 		CoursePlanes* planes;
@@ -215,6 +218,9 @@ namespace PhysicsEngine
 			my_callback = new MySimulationEventCallback();
 			px_scene->setSimulationEventCallback(my_callback);
 
+			planeMaterial = GetPhysics()->createMaterial(.30f, .26f, .1f);
+			barrierMaterial = GetPhysics()->createMaterial(0.f, 0.f, 1.f);
+
 			//plane = new Plane();
 			//plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
 			//Add(plane);
@@ -232,7 +238,7 @@ namespace PhysicsEngine
 			//use | operator to combine more actors e.g.
 			box->SetupFiltering(FilterGroup::ACTOR0, FilterGroup::ACTOR1 | FilterGroup::ACTOR2);
 			//don't forget to set your flags for the matching actor as well, e.g.:
-			box2 = new Box(PxTransform(PxVec3(5.f, 3.f, -25.f)));
+			box2 = new Box(PxTransform(PxVec3(5.f, 3.f, -25.f)), PxVec3(5.f, 10.f, .1f));
 			box2->SetupFiltering(FilterGroup::ACTOR1, FilterGroup::ACTOR0);
 
 			putterJoint = new Box(PxTransform(PxVec3(0.f, 10.f, 0.f)));
@@ -244,17 +250,22 @@ namespace PhysicsEngine
 			Add(putter);
 			//putter->SetKinematic(true);
 			//((PxRigidBody*)putter->Get())->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
-			RevoluteJoint pJoint(putterJoint, PxTransform(PxVec3(0.f, -3.f, 0.f), PxQuat(PxPi / 2, PxVec3(1.f, 0.f, 0.f))), putter, PxTransform(PxVec3(0.f, 5.f, 0.f)));
+			RevoluteJoint pJoint(putterJoint, PxTransform(PxVec3(0.f, -4.f, 0.f), PxQuat(PxPi / 2, PxVec3(1.f, 0.f, 0.f))), putter, PxTransform(PxVec3(0.f, 5.f, 0.f)));
 			pJoint.DriveVelocity(5);
 
 			planes = new CoursePlanes(PxTransform(PxVec3(.0f, .0f, .0f)));
 			barriers = new CourseBarriers(PxTransform(PxVec3(.0f, 1.f, .0f)));
+			planes->SetupFiltering(FilterGroup::ACTOR1, FilterGroup::ACTOR0);
+			barriers->SetupFiltering(FilterGroup::ACTOR1, FilterGroup::ACTOR0);
+
 			planes->Color(color_palette[0]);
 			barriers->Color(color_palette[2]);
 			Add(planes);
 			Add(barriers);
 			planes->SetKinematic(true);
 			barriers->SetKinematic(true);
+			planes->Material(planeMaterial);
+			barriers->Material(barrierMaterial);
 
 			box->Name("Box1");
 			box->SetKinematic(true);
@@ -289,7 +300,7 @@ namespace PhysicsEngine
 		//Custom udpate function
 		virtual void CustomUpdate() 		
 		{
-
+			
 		}
 
 		/// An example use of key release handling
