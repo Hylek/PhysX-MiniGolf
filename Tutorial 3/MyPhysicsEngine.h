@@ -189,6 +189,9 @@ namespace PhysicsEngine
 		Sphere* ball;
 		PxMaterial* barrierMaterial;
 		PxMaterial* planeMaterial;
+		RevoluteJoint* pJoint;
+
+		bool switchTriggers = false;
 
 
 		// Course objects
@@ -250,8 +253,8 @@ namespace PhysicsEngine
 			Add(putter);
 			//putter->SetKinematic(true);
 			//((PxRigidBody*)putter->Get())->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
-			RevoluteJoint pJoint(putterJoint, PxTransform(PxVec3(0.f, -4.f, 0.f), PxQuat(PxPi / 2, PxVec3(1.f, 0.f, 0.f))), putter, PxTransform(PxVec3(0.f, 5.f, 0.f)));
-			pJoint.DriveVelocity(5);
+			// pJoint(putterJoint, PxTransform(PxVec3(0.f, -4.f, 0.f), PxQuat(PxPi / 2, PxVec3(1.f, 0.f, 0.f))), putter, PxTransform(PxVec3(0.f, 5.f, 0.f)));
+			pJoint = new RevoluteJoint(putterJoint, PxTransform(PxVec3(0.f, -4.f, 0.f), PxQuat(PxPi / 2, PxVec3(1.f, 0.f, 0.f))), putter, PxTransform(PxVec3(0.f, 5.f, 0.f)));
 
 			planes = new CoursePlanes(PxTransform(PxVec3(.0f, .0f, .0f)));
 			barriers = new CourseBarriers(PxTransform(PxVec3(.0f, 1.f, .0f)));
@@ -293,14 +296,24 @@ namespace PhysicsEngine
 			px_scene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.0f);
 
 			((PxJoint*)joint.Get())->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
-			joint.DriveVelocity(5);
+			joint.DriveVelocity(1);
 
 		}
 
 		//Custom udpate function
 		virtual void CustomUpdate() 		
 		{
-			
+
+		}
+
+		void ActiveMotor()
+		{
+			pJoint->DriveVelocity(2);
+		}
+
+		void ReleaseMotor()
+		{
+			pJoint->DriveVelocity(0);
 		}
 
 		/// An example use of key release handling

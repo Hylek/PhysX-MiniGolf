@@ -177,6 +177,9 @@ namespace VisualDebugger
 		case 'R':
 			scene->ExampleKeyPressHandler();
 			break;
+		case 'F':
+			scene->ActiveMotor();
+			break;
 		default:
 			break;
 		}
@@ -189,6 +192,9 @@ namespace VisualDebugger
 		//implement your own
 		case 'R':
 			scene->ExampleKeyReleaseHandler();
+			break;
+		case 'G':
+			scene->ReleaseMotor();
 			break;
 		default:
 			break;
