@@ -189,7 +189,13 @@ namespace PhysicsEngine
 		Sphere* ball;
 		PxMaterial* barrierMaterial;
 		PxMaterial* planeMaterial;
+
+		PxMaterial* concrete;
+
 		RevoluteJoint* pJoint;
+		TeeBox* teeBox;
+
+		PxTransform pJointLocation;
 
 		bool switchTriggers = false;
 
@@ -223,16 +229,23 @@ namespace PhysicsEngine
 
 			planeMaterial = GetPhysics()->createMaterial(.30f, .26f, .1f);
 			barrierMaterial = GetPhysics()->createMaterial(0.f, 0.f, 1.f);
+			concrete = GetPhysics()->createMaterial(1.0f, 0.6f, .4f);
 
 			//plane = new Plane();
 			//plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
 			//Add(plane);
 
-			ball = new Sphere(PxTransform(PxVec3(.0f, 10.f, 0.f)), .5f);
+			ball = new Sphere(PxTransform(PxVec3(.0f, 10.f, -2.5f)), .2f);
 			ball->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
+			ball->Name("golfball");
+			((PxRigidBody*)ball->Get())->setMass(0.045f);
 			Add(ball);
-			//((PxRigidBody*)ball->Get())->addForce(PxVec3(.0f, .0f, -15.f), PxForceMode::eIMPULSE);
-			//((PxRigidBody*)ball->Get())->
+
+			teeBox = new TeeBox(PxTransform(PxVec3(0.f, 0.f, 0.f)));
+			teeBox->SetKinematic(true);
+			teeBox->Color(PxVec3(60.f / 255.f, 60.f / 255.f, 60.f / 255.f));
+			teeBox->Material(concrete);
+			Add(teeBox);
 
 			box = new Box(PxTransform(PxVec3(5.f, 10.f, -25.f)));
 			box->Color(color_palette[0]);
@@ -247,6 +260,7 @@ namespace PhysicsEngine
 			putterJoint = new Box(PxTransform(PxVec3(0.f, 10.f, 0.f)));
 			putterJoint->SetKinematic(true);
 			Add(putterJoint);
+			((PxRigidBody*)putterJoint->Get())->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 
 			putter = new Putter(PxTransform(PxVec3(.1f, 5.f, .0f)));
 			putter->Color(color_palette[2]);
@@ -261,8 +275,8 @@ namespace PhysicsEngine
 			planes->SetupFiltering(FilterGroup::ACTOR1, FilterGroup::ACTOR0);
 			barriers->SetupFiltering(FilterGroup::ACTOR1, FilterGroup::ACTOR0);
 
-			planes->Color(color_palette[0]);
-			barriers->Color(color_palette[2]);
+			planes->Color(PxVec3(0.f / 255.f, 160.f / 255.f, 20.f / 255.f));
+			barriers->Color(PxVec3(178.f / 255.f, 70.f / 255.f, 34.f / 255.f));
 			Add(planes);
 			Add(barriers);
 			planes->SetKinematic(true);
@@ -279,17 +293,6 @@ namespace PhysicsEngine
 			((PxActor*)box2->Get())->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 			Add(box2);
 
-			//for (int i = 0; i < 100; i++)
-			//{
-			//	box3 = new Box(PxTransform(PxVec3(.0f, 100.f + i, .0f)));
-			//	box3->SetupFiltering(FilterGroup::ACTOR1, FilterGroup::ACTOR0);
-
-			//	Add(box3);
-			//}
-
-			//joint two boxes together
-			//the joint is fixed to the centre of the first box, oriented by 90 degrees around the Y axis
-			//and has the second object attached 5 meters away along the Y axis from the first object.
 			RevoluteJoint joint(box, PxTransform(PxVec3(0.f, 0.f, 0.f), PxQuat(PxPi / 2, PxVec3(0.f, 1.f, 0.f))), box2, PxTransform(PxVec3(0.f, 5.f, 0.f)));
 
 			px_scene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS, 1.0f);
@@ -300,10 +303,10 @@ namespace PhysicsEngine
 
 		}
 
-		//Custom udpate function
 		virtual void CustomUpdate() 		
 		{
-
+			pJointLocation = ((PxRigidBody*)putterJoint->Get())->getGlobalPose();
+			((PxRigidDynamic*)putter->Get())->wakeUp();
 		}
 
 		void ActiveMotor()
@@ -314,6 +317,47 @@ namespace PhysicsEngine
 		void ReleaseMotor()
 		{
 			pJoint->DriveVelocity(0);
+		}
+
+		void MovePutterForward()
+		{
+			((PxRigidBody*)putterJoint->Get())->setGlobalPose(PxTransform(PxVec3(pJointLocation.p.x, pJointLocation.p.y, pJointLocation.p.z - .1f)));
+		}
+
+		void MovePutterBack()
+		{
+			((PxRigidBody*)putterJoint->Get())->setGlobalPose(PxTransform(PxVec3(pJointLocation.p.x, pJointLocation.p.y, pJointLocation.p.z + .1f)));
+		}
+
+		void MovePutterLeft()
+		{
+			((PxRigidBody*)putterJoint->Get())->setGlobalPose(PxTransform(PxVec3(pJointLocation.p.x - .1f, pJointLocation.p.y, pJointLocation.p.z)));
+		}
+
+		void MovePutterRight()
+		{
+			((PxRigidBody*)putterJoint->Get())->setGlobalPose(PxTransform(PxVec3(pJointLocation.p.x + .1f, pJointLocation.p.y, pJointLocation.p.z)));
+		}
+
+		void MovePutterUp()
+		{
+			((PxRigidBody*)putterJoint->Get())->setGlobalPose(PxTransform(PxVec3(pJointLocation.p.x, pJointLocation.p.y + .1f, pJointLocation.p.z)));
+		}
+
+		void MovePutterDown()
+		{
+			((PxRigidBody*)putterJoint->Get())->setGlobalPose(PxTransform(PxVec3(pJointLocation.p.x, pJointLocation.p.y - .1f, pJointLocation.p.z)));
+		}
+
+		void RotatePutterLeft()
+		{
+			((PxRigidBody*)putterJoint->Get())->setGlobalPose(PxTransform(PxVec3(pJointLocation.p.x, pJointLocation.p.y - 1, pJointLocation.p.z)));
+		}
+
+		void RotatePutterRight()
+		{
+			PxTransform newTrans();
+			//((PxRigidBody*)putterJoint->Get())->s
 		}
 
 		/// An example use of key release handling

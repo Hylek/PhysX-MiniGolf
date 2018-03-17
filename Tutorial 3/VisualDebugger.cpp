@@ -177,8 +177,11 @@ namespace VisualDebugger
 		case 'R':
 			scene->ExampleKeyPressHandler();
 			break;
-		case 'F':
+		case 'Z':
 			scene->ActiveMotor();
+			break;
+		case 'X':
+			scene->ReleaseMotor();
 			break;
 		default:
 			break;
@@ -193,9 +196,6 @@ namespace VisualDebugger
 		case 'R':
 			scene->ExampleKeyReleaseHandler();
 			break;
-		case 'G':
-			scene->ReleaseMotor();
-			break;
 		default:
 			break;
 		}
@@ -203,6 +203,35 @@ namespace VisualDebugger
 
 	void UserKeyHold(int key)
 	{
+		switch (toupper(key))
+		{
+		case 'T':
+			scene->MovePutterForward();
+			break;
+		case 'G': 
+			scene->MovePutterBack();
+			break;
+		case 'F':
+			scene->MovePutterLeft();
+			break;
+		case 'H':
+			scene->MovePutterRight();
+			break;
+		case 'U':
+			scene->MovePutterUp();
+			break;
+		case 'J':
+			scene->MovePutterDown();
+			break;
+		case 'R':
+			scene->RotatePutterLeft();
+			break;
+		case 'Y':
+			scene->RotatePutterRight();
+			break;
+		default:
+			break;
+		}
 	}
 
 	//handle camera control keys

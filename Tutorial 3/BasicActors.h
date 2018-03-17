@@ -128,9 +128,11 @@ namespace PhysicsEngine
 	public:
 		Putter(const PxTransform& pose = PxTransform(PxIdentity), PxReal density = 1.f, PxVec3 secondShape = PxVec3()) : DynamicActor(pose)
 		{
-			CreateShape(PxBoxGeometry(PxVec3(2.5f, .5f, .2f)), density);
-			CreateShape(PxBoxGeometry(PxVec3(.3f, 5.f, .2f)), density);
-			GetShape(1)->setLocalPose(PxTransform(PxVec3(2.f, 5.f, .0f)));
+			CreateShape(PxBoxGeometry(PxVec3(.5f, .08f, .05f)), density);
+			CreateShape(PxBoxGeometry(PxVec3(.05f, 2.f, .05f)), density);
+			CreateShape(PxBoxGeometry(PxVec3(.08f, .5f, .08f)), density);
+			GetShape(1)->setLocalPose(PxTransform(PxVec3(.2f, 2.f, .0f)));
+			GetShape(2)->setLocalPose(PxTransform(PxVec3(.2f, 3.5f, .0f)));
 		}
 	};
 
@@ -140,11 +142,19 @@ namespace PhysicsEngine
 		CoursePlanes(const PxTransform& pose = PxTransform(PxIdentity), PxReal density = 1.f, PxVec3 secondShape = PxVec3()) :  DynamicActor(pose)
 		{
 			// Create course plane length
-			CreateShape(PxBoxGeometry(PxVec3(10.f, .5f, 50.f)), density);
-			CreateShape(PxBoxGeometry(PxVec3(20.f, .5f, 10.f)), density);
+			CreateShape(PxBoxGeometry(PxVec3(4.f, .25f, 20.f)), density);
+			GetShape(0)->setLocalPose(PxTransform(PxVec3(0.f, 0.f, -25.f)));
+		}
+	};
 
-			GetShape(0)->setLocalPose(PxTransform(PxVec3(0.f, 0.f, -40.f)));
-			GetShape(1)->setLocalPose(PxTransform(PxVec3(0.f, 0.f, 0.f)));
+	class TeeBox : public DynamicActor
+	{
+	public:
+		TeeBox(const PxTransform& pose = PxTransform(PxIdentity), PxReal density = 1.f, PxVec3 secondShape = PxVec3()) : DynamicActor(pose)
+		{
+			// Create course plane length
+			CreateShape(PxBoxGeometry(PxVec3(4.f, .25f, 2.5f)), density);
+			GetShape(0)->setLocalPose(PxTransform(PxVec3(0.f, 0.f, -2.5f)));
 		}
 	};
 
@@ -153,23 +163,14 @@ namespace PhysicsEngine
 	public:
 		CourseBarriers(const PxTransform& pose = PxTransform(PxIdentity), PxReal density = 1.f, PxVec3 secondShape = PxVec3()) : DynamicActor(pose)
 		{
-			CreateShape(PxBoxGeometry(PxVec3(.25f, .5f, 40.f)), density);
-			CreateShape(PxBoxGeometry(PxVec3(.25f, .5f, 40.f)), density);
-			CreateShape(PxBoxGeometry(PxVec3(10.f, .5f, .25f)), density);
-			CreateShape(PxBoxGeometry(PxVec3(5.3f, .5f, .25f)), density);
-			CreateShape(PxBoxGeometry(PxVec3(5.3f, .5f, .25f)), density);
-			CreateShape(PxBoxGeometry(PxVec3(20.f, .5f, .25f)), density);
-			CreateShape(PxBoxGeometry(PxVec3(.25f, .5f, 10.f)), density);
-			CreateShape(PxBoxGeometry(PxVec3(.25f, .5f, 10.f)), density);
+			CreateShape(PxBoxGeometry(PxVec3(.2f, .2f, 22.5f)), density);
+			CreateShape(PxBoxGeometry(PxVec3(.2f, .2f, 22.5f)), density);
+			CreateShape(PxBoxGeometry(PxVec3(3.6f, .2f, .2f)), density);
 
-			GetShape(0)->setLocalPose(PxTransform(PxVec3(9.7f, 0.f, -50.f)));
-			GetShape(1)->setLocalPose(PxTransform(PxVec3(-9.7f, 0.f, -50.f)));
-			GetShape(2)->setLocalPose(PxTransform(PxVec3(0.f, 0.f, -90.f)));
-			GetShape(3)->setLocalPose(PxTransform(PxVec3(14.75f, 0.f, -10.f)));
-			GetShape(4)->setLocalPose(PxTransform(PxVec3(-14.75f, 0.f, -10.f)));
-			GetShape(5)->setLocalPose(PxTransform(PxVec3(0.f, 0.f, 10.f)));
-			GetShape(6)->setLocalPose(PxTransform(PxVec3(20.f, 0.f, 0.f)));
-			GetShape(7)->setLocalPose(PxTransform(PxVec3(-20.f, 0.f, 0.f)));
+			GetShape(0)->setLocalPose(PxTransform(PxVec3(3.8f, -.55f, -22.5f)));
+			GetShape(1)->setLocalPose(PxTransform(PxVec3(-3.8f, -.55f, -22.5f)));
+			GetShape(2)->setLocalPose(PxTransform(PxVec3(0.f, -.55f, -44.8f)));
+
 		}
 	};
 
