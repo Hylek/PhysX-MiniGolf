@@ -1,7 +1,9 @@
 ﻿  Tutorial 3.cpp
+d:\university\3rd_year\semester_b\physics_simulation\workshops\tutorial 3\myphysicsengine.h(404): warning C4930: 'physx::PxTransform newTrans(void)': prototyped function not called (was a variable definition intended?)
   Generating Code...
   Compiling...
   VisualDebugger.cpp
+d:\university\3rd_year\semester_b\physics_simulation\workshops\tutorial 3\myphysicsengine.h(404): warning C4930: 'physx::PxTransform newTrans(void)': prototyped function not called (was a variable definition intended?)
   Generating Code...
   Tutorial 3.vcxproj -> D:\University\3rd_Year\Semester_B\Physics_Simulation\Workshops\x64\Debug\Tutorial 3.exe
   Tutorial 3.vcxproj -> D:\University\3rd_Year\Semester_B\Physics_Simulation\Workshops\x64\Debug\Tutorial 3.pdb (Partial PDB)

@@ -144,6 +144,14 @@ namespace PhysicsEngine
 			// Create course plane length
 			CreateShape(PxBoxGeometry(PxVec3(4.f, .25f, 20.f)), density);
 			GetShape(0)->setLocalPose(PxTransform(PxVec3(0.f, 0.f, -25.f)));
+
+			// The hole
+			CreateShape(PxBoxGeometry(PxVec3(4.f, .25f, 1.2f)), density);
+			GetShape(1)->setLocalPose(PxTransform(PxVec3(0.f, 0.f, -47.2f)));
+			CreateShape(PxBoxGeometry(PxVec3(1.8f, .25f, 1.f)), density);
+			GetShape(2)->setLocalPose(PxTransform(PxVec3(2.2f, 0.f, -45.8f)));
+			CreateShape(PxBoxGeometry(PxVec3(1.8f, .25f, 1.f)), density);
+			GetShape(3)->setLocalPose(PxTransform(PxVec3(-2.2f, 0.f, -45.8f)));
 		}
 	};
 
@@ -158,6 +166,7 @@ namespace PhysicsEngine
 		}
 	};
 
+
 	class CourseBarriers : public DynamicActor
 	{
 	public:
@@ -165,11 +174,11 @@ namespace PhysicsEngine
 		{
 			CreateShape(PxBoxGeometry(PxVec3(.2f, .2f, 22.5f)), density);
 			CreateShape(PxBoxGeometry(PxVec3(.2f, .2f, 22.5f)), density);
-			CreateShape(PxBoxGeometry(PxVec3(3.6f, .2f, .2f)), density);
+			//CreateShape(PxBoxGeometry(PxVec3(3.6f, .2f, .2f)), density);
 
 			GetShape(0)->setLocalPose(PxTransform(PxVec3(3.8f, -.55f, -22.5f)));
 			GetShape(1)->setLocalPose(PxTransform(PxVec3(-3.8f, -.55f, -22.5f)));
-			GetShape(2)->setLocalPose(PxTransform(PxVec3(0.f, -.55f, -44.8f)));
+			//GetShape(2)->setLocalPose(PxTransform(PxVec3(0.f, -.55f, -44.8f)));
 
 		}
 	};

@@ -174,15 +174,15 @@ namespace VisualDebugger
 		switch (toupper(key))
 		{
 		//implement your own
-		case 'R':
-			scene->ExampleKeyPressHandler();
-			break;
-		case 'Z':
-			scene->ActiveMotor();
-			break;
-		case 'X':
-			scene->ReleaseMotor();
-			break;
+			case 'R':
+				scene->RotatePutterLeft();
+				break;
+			case 'Y':
+				scene->RotatePutterRight();
+				break;
+			case 'B':
+				scene->ResetBall();
+				break;
 		default:
 			break;
 		}
@@ -195,6 +195,9 @@ namespace VisualDebugger
 		//implement your own
 		case 'R':
 			scene->ExampleKeyReleaseHandler();
+			break;
+		case 'P':
+			scene->Fire();
 			break;
 		default:
 			break;
@@ -217,18 +220,24 @@ namespace VisualDebugger
 		case 'H':
 			scene->MovePutterRight();
 			break;
-		case 'U':
+		case ',':
 			scene->MovePutterUp();
 			break;
-		case 'J':
+		case '.':
 			scene->MovePutterDown();
 			break;
-		case 'R':
-			scene->RotatePutterLeft();
+		case 'O':
+			scene->SwingBack();
 			break;
-		case 'Y':
-			scene->RotatePutterRight();
+		case 'P':
+			scene->SetSpeed();
 			break;
+		//case 'R':
+		//	scene->RotatePutterLeft();
+		//	break;
+		//case 'Y':
+		//	scene->RotatePutterRight();
+		//	break;
 		default:
 			break;
 		}

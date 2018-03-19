@@ -197,7 +197,10 @@ namespace PhysicsEngine
 
 		PxTransform pJointLocation;
 
+		PxReal speed = 0;
+
 		bool switchTriggers = false;
+		bool swingBack = false;
 
 
 		// Course objects
@@ -250,12 +253,11 @@ namespace PhysicsEngine
 			box = new Box(PxTransform(PxVec3(5.f, 10.f, -25.f)));
 			box->Color(color_palette[0]);
 			//set collision filter flags
-			box->SetupFiltering(FilterGroup::ACTOR0, FilterGroup::ACTOR1);
 			//use | operator to combine more actors e.g.
 			box->SetupFiltering(FilterGroup::ACTOR0, FilterGroup::ACTOR1 | FilterGroup::ACTOR2);
 			//don't forget to set your flags for the matching actor as well, e.g.:
 			box2 = new Box(PxTransform(PxVec3(5.f, 3.f, -25.f)), PxVec3(5.f, 10.f, .1f));
-			box2->SetupFiltering(FilterGroup::ACTOR1, FilterGroup::ACTOR0);
+			box2->SetupFiltering(FilterGroup::ACTOR1, FilterGroup::ACTOR0 | FilterGroup::ACTOR1);
 
 			putterJoint = new Box(PxTransform(PxVec3(0.f, 10.f, 0.f)));
 			putterJoint->SetKinematic(true);
@@ -264,11 +266,13 @@ namespace PhysicsEngine
 
 			putter = new Putter(PxTransform(PxVec3(.1f, 5.f, .0f)));
 			putter->Color(color_palette[2]);
+			((PxRigidBody*)putter->Get())->setMass(0.355f);
 			Add(putter);
 			//putter->SetKinematic(true);
 			//((PxRigidBody*)putter->Get())->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 			// pJoint(putterJoint, PxTransform(PxVec3(0.f, -4.f, 0.f), PxQuat(PxPi / 2, PxVec3(1.f, 0.f, 0.f))), putter, PxTransform(PxVec3(0.f, 5.f, 0.f)));
 			pJoint = new RevoluteJoint(putterJoint, PxTransform(PxVec3(0.f, -4.f, 0.f), PxQuat(PxPi / 2, PxVec3(1.f, 0.f, 0.f))), putter, PxTransform(PxVec3(0.f, 5.f, 0.f)));
+			pJoint->SetLimits(-PxPi / 1.4f, PxPi / 3.5f);
 
 			planes = new CoursePlanes(PxTransform(PxVec3(.0f, .0f, .0f)));
 			barriers = new CourseBarriers(PxTransform(PxVec3(.0f, 1.f, .0f)));
@@ -281,8 +285,8 @@ namespace PhysicsEngine
 			Add(barriers);
 			planes->SetKinematic(true);
 			barriers->SetKinematic(true);
-			planes->Material(planeMaterial);
-			barriers->Material(barrierMaterial);
+			//planes->Material(planeMaterial);
+			//barriers->Material(barrierMaterial);
 
 			box->Name("Box1");
 			box->SetKinematic(true);
@@ -306,17 +310,58 @@ namespace PhysicsEngine
 		virtual void CustomUpdate() 		
 		{
 			pJointLocation = ((PxRigidBody*)putterJoint->Get())->getGlobalPose();
+			cerr << speed << endl;
 			((PxRigidDynamic*)putter->Get())->wakeUp();
+
+			if (pJointLocation.p.y <= 9.4f)
+			{
+				pJointLocation.p.y = 9.4f;
+			}
+
+			if (swingBack)
+			{
+				((PxRigidBody*)putter->Get())->addForce(PxVec3(.0f, .0f, 1.f), PxForceMode::eIMPULSE);
+			}
+
 		}
 
-		void ActiveMotor()
+		void ResetBall()
 		{
-			pJoint->DriveVelocity(2);
+			((PxRigidBody*)ball->Get())->setGlobalPose(PxTransform(PxVec3(.0f, 10.f, -2.5f)));
+			((PxRigidBody*)ball->Get())->setLinearVelocity(PxVec3(.0f, .0f, .0f));
+		}
+
+		void Fire()
+		{
+			swingBack = false;
+			((PxRigidBody*)putter->Get())->addForce(PxVec3(.0f, .0f, -speed), PxForceMode::eIMPULSE);
+		}
+
+		void SwingBack()
+		{
+			//pJoint->DriveVelocity(2);
+			((PxRigidBody*)putter->Get())->addForce(PxVec3(.0f, .0f, 1.f), PxForceMode::eIMPULSE);
+			swingBack = true;
+			speed = 0;
 		}
 
 		void ReleaseMotor()
 		{
-			pJoint->DriveVelocity(0);
+			//pJoint->DriveVelocity(0);
+			((PxRigidBody*)putter->Get())->addForce(PxVec3(.0f, .0f, -10.f), PxForceMode::eIMPULSE);
+
+		}
+
+		void SetSpeed()
+		{
+			if (speed <= 30.f)
+			{
+				speed++;
+			}
+			else
+			{
+				speed = 0;
+			}
 		}
 
 		void MovePutterForward()
@@ -351,7 +396,7 @@ namespace PhysicsEngine
 
 		void RotatePutterLeft()
 		{
-			((PxRigidBody*)putterJoint->Get())->setGlobalPose(PxTransform(PxVec3(pJointLocation.p.x, pJointLocation.p.y - 1, pJointLocation.p.z)));
+			//((PxRigidBody*)putterJoint->Get())->setGlobalPose(PxTransform(PxVec3(pJointLocation.p.x, pJointLocation.p.y, pJointLocation.p.z), PxQuat(pJointLocation.q.x, pJointLocation.q.y + 10.f, pJointLocation.q.z, pJointLocation.q.w)));
 		}
 
 		void RotatePutterRight()
