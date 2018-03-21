@@ -183,6 +183,34 @@ namespace PhysicsEngine
 		}
 	};
 
+
+	class WindmillBase : public DynamicActor
+	{
+	public:
+		WindmillBase(const PxTransform& pose = PxTransform(PxIdentity), PxReal density = 1.f, PxVec3 secondShape = PxVec3()) : DynamicActor(pose)
+		{
+			CreateShape(PxBoxGeometry(PxVec3(1.5f, 2.f, 2.f)), density);
+			CreateShape(PxBoxGeometry(PxVec3(1.5f, 2.f, 2.f)), density);
+			CreateShape(PxBoxGeometry(PxVec3(2.f, 2.f, 2.f)), density);
+			CreateShape(PxBoxGeometry(PxVec3(1.5f, 1.5f, 2.5f)), density);
+
+			GetShape(0)->setLocalPose(PxTransform(PxVec3(-2.f, 2.f, -22.6f)));
+			GetShape(1)->setLocalPose(PxTransform(PxVec3(2.f, 2.f, -22.6f)));
+			GetShape(2)->setLocalPose(PxTransform(PxVec3(0.f, 3.f, -22.6f)));
+			GetShape(3)->setLocalPose(PxTransform(PxVec3(0.f, 6.5f, -22.6f)));
+		}
+	};
+
+	class WindmillBlades : public DynamicActor
+	{
+	public:
+		WindmillBlades(const PxTransform& pose = PxTransform(PxIdentity), PxReal density = 1.f) : DynamicActor(pose)
+		{
+			CreateShape(PxBoxGeometry(PxVec3(.1f, 6.f, .5f)), density);
+			CreateShape(PxBoxGeometry(PxVec3(.1f, .5f, 6.f)), density);
+		}
+	};
+
 	//Distance joint with the springs switched on
 	class DistanceJoint : public Joint
 	{
@@ -221,6 +249,52 @@ namespace PhysicsEngine
 		}
 	};
 
+	///Sphereical Joint
+	class SphereicalJoint : public Joint
+	{
+	public:
+		SphereicalJoint(Actor* actor0, const PxTransform& localFrame0, Actor* actor1, const PxTransform& localFrame1)
+		{
+			PxRigidActor* px_actor0 = 0;
+			if (actor0)
+				px_actor0 = (PxRigidActor*)actor0->Get();
+			joint = PxSphericalJointCreate(*GetPhysics(), px_actor0, localFrame0, (PxRigidActor*)actor1->Get(), localFrame1);
+			joint->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
+		}
+
+		void DriveVelocity(PxReal value)
+		{
+			//wake up the attached actors
+			PxRigidDynamic *actor_0, *actor_1;
+			//((PxRevoluteJoint*)joint)->getActors((PxRigidActor*&)actor_0, (PxRigidActor*&)actor_1);
+			((PxSphericalJoint*)joint)->getActors((PxRigidActor*&)actor_0, (PxRigidActor*&)actor_1);
+			if (actor_0)
+			{
+				if (actor_0->isSleeping())
+					actor_0->wakeUp();
+			}
+			if (actor_1)
+			{
+				if (actor_1->isSleeping())
+					actor_1->wakeUp();
+			}
+			//((PxSphericalJoint*)joint)->set
+			//((PxSphericalJoint*)joint)->setDriveVelocity(value);
+			//((PxRevoluteJoint*)joint)->setRevoluteJointFlag(PxRevoluteJointFlag::eDRIVE_ENABLED, true);
+		}
+
+		PxReal DriveVelocity()
+		{
+			return ((PxRevoluteJoint*)joint)->getDriveVelocity();
+		}
+
+		void SetLimits(PxReal lower, PxReal upper)
+		{
+			((PxRevoluteJoint*)joint)->setLimit(PxJointAngularLimitPair(lower, upper));
+			((PxRevoluteJoint*)joint)->setRevoluteJointFlag(PxRevoluteJointFlag::eLIMIT_ENABLED, true);
+		}
+	};
+
 	///Revolute Joint
 	class RevoluteJoint : public Joint
 	{
@@ -230,7 +304,6 @@ namespace PhysicsEngine
 			PxRigidActor* px_actor0 = 0;
 			if (actor0)
 				px_actor0 = (PxRigidActor*)actor0->Get();
-
 			joint = PxRevoluteJointCreate(*GetPhysics(), px_actor0, localFrame0, (PxRigidActor*)actor1->Get(), localFrame1);
 			joint->setConstraintFlag(PxConstraintFlag::eVISUALIZATION,true);
 		}

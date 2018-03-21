@@ -72,7 +72,7 @@ namespace PhysicsEngine
 			}
 		}
 
-		void AddToScene(Scene* scene)
+		void AddToScene(Scene* scene) const
 		{
 			scene->Add(bottom);
 			scene->Add(top);
@@ -186,11 +186,15 @@ namespace PhysicsEngine
 		Box* putterJoint;
 		MySimulationEventCallback* my_callback;
 		Putter* putter;
+		WindmillBase* windmillBase;
+		WindmillBlades* windmillBlades;
+		Box* windmillCenter;
 		Sphere* ball;
 		PxMaterial* barrierMaterial;
 		PxMaterial* planeMaterial;
 
 		PxMaterial* concrete;
+		PxMaterial* ballMaterial;
 
 		RevoluteJoint* pJoint;
 		TeeBox* teeBox;
@@ -199,7 +203,7 @@ namespace PhysicsEngine
 
 		PxReal speed = 0;
 
-		bool switchTriggers = false;
+		//bool switchTriggers = false;
 		bool swingBack = false;
 
 
@@ -213,7 +217,7 @@ namespace PhysicsEngine
 		MyScene() : Scene() {};
 
 		///A custom scene class
-		void SetVisualisation()
+		void SetVisualisation() const
 		{
 			px_scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
 			px_scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f);
@@ -224,24 +228,22 @@ namespace PhysicsEngine
 		{
 			SetVisualisation();
 
-			GetMaterial()->setDynamicFriction(.2f);
+			//GetMaterial()->setDynamicFriction(.2f);
 
 			///Initialise and set the customised event callback
 			my_callback = new MySimulationEventCallback();
 			px_scene->setSimulationEventCallback(my_callback);
 
-			planeMaterial = GetPhysics()->createMaterial(.30f, .26f, .1f);
+			//planeMaterial = GetPhysics()->createMaterial(.30f, 1.f, .1f);
 			barrierMaterial = GetPhysics()->createMaterial(0.f, 0.f, 1.f);
-			concrete = GetPhysics()->createMaterial(1.0f, 0.6f, .4f);
-
-			//plane = new Plane();
-			//plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
-			//Add(plane);
+			concrete = GetPhysics()->createMaterial(.8f, 0.6f, .4f);
+			ballMaterial = GetPhysics()->createMaterial(.6f, .4f, .4f);
 
 			ball = new Sphere(PxTransform(PxVec3(.0f, 10.f, -2.5f)), .2f);
 			ball->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
 			ball->Name("golfball");
 			((PxRigidBody*)ball->Get())->setMass(0.045f);
+			ball->Material(ballMaterial);
 			Add(ball);
 
 			teeBox = new TeeBox(PxTransform(PxVec3(0.f, 0.f, 0.f)));
@@ -250,13 +252,13 @@ namespace PhysicsEngine
 			teeBox->Material(concrete);
 			Add(teeBox);
 
-			box = new Box(PxTransform(PxVec3(5.f, 10.f, -25.f)));
+			box = new Box(PxTransform(PxVec3(15.f, 10.f, -25.f)));
 			box->Color(color_palette[0]);
 			//set collision filter flags
 			//use | operator to combine more actors e.g.
 			box->SetupFiltering(FilterGroup::ACTOR0, FilterGroup::ACTOR1 | FilterGroup::ACTOR2);
 			//don't forget to set your flags for the matching actor as well, e.g.:
-			box2 = new Box(PxTransform(PxVec3(5.f, 3.f, -25.f)), PxVec3(5.f, 10.f, .1f));
+			box2 = new Box(PxTransform(PxVec3(5.f, 3.f, -25.f)), PxVec3(.1f, 4.5f, .5f));
 			box2->SetupFiltering(FilterGroup::ACTOR1, FilterGroup::ACTOR0 | FilterGroup::ACTOR1);
 
 			putterJoint = new Box(PxTransform(PxVec3(0.f, 10.f, 0.f)));
@@ -281,10 +283,30 @@ namespace PhysicsEngine
 
 			planes->Color(PxVec3(0.f / 255.f, 160.f / 255.f, 20.f / 255.f));
 			barriers->Color(PxVec3(178.f / 255.f, 70.f / 255.f, 34.f / 255.f));
+			planes->Material(planeMaterial);
 			Add(planes);
 			Add(barriers);
 			planes->SetKinematic(true);
 			barriers->SetKinematic(true);
+
+			windmillBase = new WindmillBase(PxTransform(PxVec3(.0f, .0f, .0f)));
+			windmillBase->Color(PxVec3(255.f / 255.f, 0 / 255.f, 0 / 255.f));
+			windmillBase->SetKinematic(true);
+			Add(windmillBase);
+
+			windmillBlades = new WindmillBlades(PxTransform(PxVec3(.0f, 6.5f, -19.5f)));
+			//windmillBlades->SetKinematic(true);
+			windmillBlades->SetupFiltering(FilterGroup::ACTOR0, FilterGroup::ACTOR1 | FilterGroup::ACTOR2);
+			Add(windmillBlades);
+
+			windmillCenter = new Box(PxTransform(PxVec3(0.f, 6.5f, -19.5f)));
+			windmillCenter->SetKinematic(true);
+			windmillCenter->SetupFiltering(FilterGroup::ACTOR1, FilterGroup::ACTOR0 | FilterGroup::ACTOR1);
+			Add(windmillCenter);
+
+			RevoluteJoint windmillJoint(windmillCenter, PxTransform(PxVec3(0.f, 0.f, 0.f), PxQuat(PxPi / 2, PxVec3(0.f, 1.f, 0.f))), windmillBlades, PxTransform(PxVec3(0.f, 0.f, 0.f)));
+			windmillJoint.DriveVelocity(1);
+
 			//planes->Material(planeMaterial);
 			//barriers->Material(barrierMaterial);
 
@@ -297,12 +319,13 @@ namespace PhysicsEngine
 			((PxActor*)box2->Get())->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 			Add(box2);
 
-			RevoluteJoint joint(box, PxTransform(PxVec3(0.f, 0.f, 0.f), PxQuat(PxPi / 2, PxVec3(0.f, 1.f, 0.f))), box2, PxTransform(PxVec3(0.f, 5.f, 0.f)));
+			RevoluteJoint joint(box, PxTransform(PxVec3(0.f, 0.f, 0.f), PxQuat(PxPi / 2, PxVec3(0.f, 1.f, 0.f))), box2, PxTransform(PxVec3(0.f, 0.f, 0.f)));
+
 
 			px_scene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS, 1.0f);
 			px_scene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.0f);
 
-			((PxJoint*)joint.Get())->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
+			//((PxJoint*)joint.Get())->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 			joint.DriveVelocity(1);
 
 		}
@@ -325,7 +348,7 @@ namespace PhysicsEngine
 
 		}
 
-		void ResetBall()
+		void ResetBall() const
 		{
 			((PxRigidBody*)ball->Get())->setGlobalPose(PxTransform(PxVec3(.0f, 10.f, -2.5f)));
 			((PxRigidBody*)ball->Get())->setLinearVelocity(PxVec3(.0f, .0f, .0f));
@@ -345,7 +368,7 @@ namespace PhysicsEngine
 			speed = 0;
 		}
 
-		void ReleaseMotor()
+		void ReleaseMotor() const
 		{
 			//pJoint->DriveVelocity(0);
 			((PxRigidBody*)putter->Get())->addForce(PxVec3(.0f, .0f, -10.f), PxForceMode::eIMPULSE);
@@ -364,55 +387,55 @@ namespace PhysicsEngine
 			}
 		}
 
-		void MovePutterForward()
+		void MovePutterForward() const
 		{
 			((PxRigidBody*)putterJoint->Get())->setGlobalPose(PxTransform(PxVec3(pJointLocation.p.x, pJointLocation.p.y, pJointLocation.p.z - .1f)));
 		}
 
-		void MovePutterBack()
+		void MovePutterBack() const
 		{
 			((PxRigidBody*)putterJoint->Get())->setGlobalPose(PxTransform(PxVec3(pJointLocation.p.x, pJointLocation.p.y, pJointLocation.p.z + .1f)));
 		}
 
-		void MovePutterLeft()
+		void MovePutterLeft() const
 		{
 			((PxRigidBody*)putterJoint->Get())->setGlobalPose(PxTransform(PxVec3(pJointLocation.p.x - .1f, pJointLocation.p.y, pJointLocation.p.z)));
 		}
 
-		void MovePutterRight()
+		void MovePutterRight() const
 		{
 			((PxRigidBody*)putterJoint->Get())->setGlobalPose(PxTransform(PxVec3(pJointLocation.p.x + .1f, pJointLocation.p.y, pJointLocation.p.z)));
 		}
 
-		void MovePutterUp()
+		void MovePutterUp() const
 		{
 			((PxRigidBody*)putterJoint->Get())->setGlobalPose(PxTransform(PxVec3(pJointLocation.p.x, pJointLocation.p.y + .1f, pJointLocation.p.z)));
 		}
 
-		void MovePutterDown()
+		void MovePutterDown() const
 		{
 			((PxRigidBody*)putterJoint->Get())->setGlobalPose(PxTransform(PxVec3(pJointLocation.p.x, pJointLocation.p.y - .1f, pJointLocation.p.z)));
 		}
 
-		void RotatePutterLeft()
+		void RotatePutterLeft() const
 		{
 			//((PxRigidBody*)putterJoint->Get())->setGlobalPose(PxTransform(PxVec3(pJointLocation.p.x, pJointLocation.p.y, pJointLocation.p.z), PxQuat(pJointLocation.q.x, pJointLocation.q.y + 10.f, pJointLocation.q.z, pJointLocation.q.w)));
 		}
 
-		void RotatePutterRight()
+		void RotatePutterRight() const
 		{
-			PxTransform newTrans();
+			//PxTransform newTrans();
 			//((PxRigidBody*)putterJoint->Get())->s
 		}
 
 		/// An example use of key release handling
-		void ExampleKeyReleaseHandler()
+		void ExampleKeyReleaseHandler() const
 		{
 			cerr << "I am realeased!" << endl;
 		}
 
 		/// An example use of key presse handling
-		void ExampleKeyPressHandler()
+		void ExampleKeyPressHandler() const
 		{
 			cerr << "I am pressed!" << endl;
 		}
