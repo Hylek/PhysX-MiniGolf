@@ -172,13 +172,13 @@ namespace PhysicsEngine
 	public:
 		CourseBarriers(const PxTransform& pose = PxTransform(PxIdentity), PxReal density = 1.f, PxVec3 secondShape = PxVec3()) : DynamicActor(pose)
 		{
-			CreateShape(PxBoxGeometry(PxVec3(.2f, .2f, 22.5f)), density);
-			CreateShape(PxBoxGeometry(PxVec3(.2f, .2f, 22.5f)), density);
-			//CreateShape(PxBoxGeometry(PxVec3(3.6f, .2f, .2f)), density);
+			CreateShape(PxBoxGeometry(PxVec3(.2f, .2f, 24.f)), density);
+			CreateShape(PxBoxGeometry(PxVec3(.2f, .2f, 24.f)), density);
+			CreateShape(PxBoxGeometry(PxVec3(4.f, .2f, .2f)), density);
 
-			GetShape(0)->setLocalPose(PxTransform(PxVec3(3.8f, -.55f, -22.5f)));
-			GetShape(1)->setLocalPose(PxTransform(PxVec3(-3.8f, -.55f, -22.5f)));
-			//GetShape(2)->setLocalPose(PxTransform(PxVec3(0.f, -.55f, -44.8f)));
+			GetShape(0)->setLocalPose(PxTransform(PxVec3(3.8f, -.55f, -24.f)));
+			GetShape(1)->setLocalPose(PxTransform(PxVec3(-3.8f, -.55f, -24.f)));
+			GetShape(2)->setLocalPose(PxTransform(PxVec3(0.f, -.55f, -48.2f)));
 
 		}
 	};
