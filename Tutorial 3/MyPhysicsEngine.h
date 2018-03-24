@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "BasicActors.h"
 #include <iostream>
@@ -107,6 +107,11 @@ namespace PhysicsEngine
 					if (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 					{
 						cerr << "onTrigger::eNOTIFY_TOUCH_FOUND" << endl;
+						//if(pairs[i].otherActor->getName() == "golfball")
+						//{
+						//	cerr << "YOU SCORED!" << endl;
+						//}
+
 						trigger = true;
 					}
 					//check if eNOTIFY_TOUCH_LOST trigger
@@ -189,6 +194,8 @@ namespace PhysicsEngine
 		WindmillBase* windmillBase;
 		WindmillBlades* windmillBlades;
 		Box* windmillCenter;
+		Box* holeTrigger;
+		Box* flagPole;
 		Sphere* ball;
 		PxMaterial* barrierMaterial;
 		PxMaterial* planeMaterial;
@@ -198,6 +205,7 @@ namespace PhysicsEngine
 
 		RevoluteJoint* pJoint;
 		TeeBox* teeBox;
+		Cloth* poleFlag;
 
 		PxTransform pJointLocation;
 
@@ -221,6 +229,11 @@ namespace PhysicsEngine
 		{
 			px_scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
 			px_scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f);
+
+			px_scene->setVisualizationParameter(PxVisualizationParameter::eCLOTH_HORIZONTAL, 1.0f);
+			px_scene->setVisualizationParameter(PxVisualizationParameter::eCLOTH_VERTICAL, 1.0f);
+			px_scene->setVisualizationParameter(PxVisualizationParameter::eCLOTH_BENDING, 1.0f);
+			px_scene->setVisualizationParameter(PxVisualizationParameter::eCLOTH_SHEARING, 1.0f);
 		}
 
 		//Custom scene initialisation
@@ -307,6 +320,19 @@ namespace PhysicsEngine
 			RevoluteJoint windmillJoint(windmillCenter, PxTransform(PxVec3(0.f, 0.f, 0.f), PxQuat(PxPi / 2, PxVec3(0.f, 1.f, 0.f))), windmillBlades, PxTransform(PxVec3(0.f, 0.f, 0.f)));
 			windmillJoint.DriveVelocity(1);
 
+			holeTrigger = new Box(PxTransform(PxVec3(0, -2.f, -45.5f)), PxVec3(2.f, .1f, 2.f));
+			holeTrigger->SetKinematic(true);
+			holeTrigger->SetTrigger(true);
+			Add(holeTrigger);
+
+			flagPole = new Box(PxTransform(PxVec3(.0f, 4.4f, -45.5f)), PxVec3(.1f, 4.f, .1f));
+			flagPole->SetKinematic(true);
+			Add(flagPole);
+
+			poleFlag = new Cloth(PxTransform(PxVec3(0.1f, 7.4f, -45.5f)/*, PxQuat(90.f, 0, 0, 0)*/), PxVec2(2.f, 1.5f), 40, 40, true);
+			((PxCloth*)poleFlag->Get())->setExternalAcceleration(PxVec3(15.f, .0f, .0f));
+			Add(poleFlag);
+
 			//planes->Material(planeMaterial);
 			//barriers->Material(barrierMaterial);
 
@@ -334,7 +360,7 @@ namespace PhysicsEngine
 		virtual void CustomUpdate() 		
 		{
 			pJointLocation = ((PxRigidBody*)putterJoint->Get())->getGlobalPose();
-			cerr << speed << endl;
+			//cerr << speed << endl;
 			((PxRigidDynamic*)putter->Get())->wakeUp();
 
 			if (pJointLocation.p.y <= 9.4f)
@@ -347,8 +373,14 @@ namespace PhysicsEngine
 				((PxRigidBody*)putter->Get())->addForce(PxVec3(.0f, .0f, 1.f), PxForceMode::eIMPULSE);
 			}
 
-		}
+			if(my_callback->trigger)
+			{
+				cerr << "YOU SCORED" << endl;
 
+			}
+
+		}
+			
 		void ResetBall() const
 		{
 			((PxRigidBody*)ball->Get())->setGlobalPose(PxTransform(PxVec3(.0f, 10.f, -2.5f)));
@@ -378,7 +410,7 @@ namespace PhysicsEngine
 
 		void SetSpeed()
 		{
-			if (speed <= 15.f)
+			if (speed <= 30.f)
 			{
 				speed++;
 			}
