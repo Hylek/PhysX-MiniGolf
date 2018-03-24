@@ -256,12 +256,15 @@ namespace PhysicsEngine
 			ball->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
 			ball->Name("golfball");
 			((PxRigidBody*)ball->Get())->setMass(0.045f);
+			((PxRigidBody*)ball->Get())->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
 			ball->Material(ballMaterial);
+			ball->SetupFiltering(FilterGroup::ACTOR0, FilterGroup::ACTOR1);
 			Add(ball);
 
 			teeBox = new TeeBox(PxTransform(PxVec3(0.f, 0.f, 0.f)));
 			teeBox->SetKinematic(true);
 			teeBox->Color(PxVec3(60.f / 255.f, 60.f / 255.f, 60.f / 255.f));
+			teeBox->SetupFiltering(FilterGroup::ACTOR1, FilterGroup::ACTOR0);
 			teeBox->Material(concrete);
 			Add(teeBox);
 
@@ -277,7 +280,6 @@ namespace PhysicsEngine
 			putterJoint = new Box(PxTransform(PxVec3(0.f, 10.f, 0.f)));
 			putterJoint->SetKinematic(true);
 			Add(putterJoint);
-			((PxRigidBody*)putterJoint->Get())->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 
 			putter = new Putter(PxTransform(PxVec3(.1f, 5.f, .0f)));
 			putter->Color(color_palette[2]);
@@ -309,12 +311,12 @@ namespace PhysicsEngine
 			windmillBlades = new WindmillBlades(PxTransform(PxVec3(.0f, 6.5f, -19.5f)));
 
 			// set filter so the blades don't smack on the centerpoint cube
-			windmillBlades->SetupFiltering(FilterGroup::ACTOR0, FilterGroup::ACTOR1 | FilterGroup::ACTOR2);
+			windmillBlades->SetupFiltering(FilterGroup::ACTOR0, FilterGroup::ACTOR1);
 			Add(windmillBlades);
 
 			windmillCenter = new Box(PxTransform(PxVec3(0.f, 6.5f, -19.5f)));
 			windmillCenter->SetKinematic(true);
-			windmillCenter->SetupFiltering(FilterGroup::ACTOR1, FilterGroup::ACTOR0 | FilterGroup::ACTOR1);
+			windmillCenter->SetupFiltering(FilterGroup::ACTOR1, FilterGroup::ACTOR0);
 			Add(windmillCenter);
 
 			RevoluteJoint windmillJoint(windmillCenter, PxTransform(PxVec3(0.f, 0.f, 0.f), PxQuat(PxPi / 2, PxVec3(0.f, 1.f, 0.f))), windmillBlades, PxTransform(PxVec3(0.f, 0.f, 0.f)));
