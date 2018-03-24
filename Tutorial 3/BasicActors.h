@@ -136,10 +136,10 @@ namespace PhysicsEngine
 		}
 	};
 
-	class CoursePlanes : public DynamicActor
+	class CoursePlanes : public StaticActor
 	{
 	public:
-		CoursePlanes(const PxTransform& pose = PxTransform(PxIdentity), PxReal density = 1.f, PxVec3 secondShape = PxVec3()) :  DynamicActor(pose)
+		CoursePlanes(const PxTransform& pose = PxTransform(PxIdentity), PxReal density = 1.f, PxVec3 secondShape = PxVec3()) :  StaticActor(pose)
 		{
 			// Create course plane length
 			CreateShape(PxBoxGeometry(PxVec3(4.f, .25f, 20.f)), density);
@@ -155,10 +155,10 @@ namespace PhysicsEngine
 		}
 	};
 
-	class TeeBox : public DynamicActor
+	class TeeBox : public StaticActor
 	{
 	public:
-		TeeBox(const PxTransform& pose = PxTransform(PxIdentity), PxReal density = 1.f, PxVec3 secondShape = PxVec3()) : DynamicActor(pose)
+		TeeBox(const PxTransform& pose = PxTransform(PxIdentity), PxReal density = 1.f, PxVec3 secondShape = PxVec3()) : StaticActor(pose)
 		{
 			// Create course plane length
 			CreateShape(PxBoxGeometry(PxVec3(4.f, .25f, 2.5f)), density);
@@ -167,10 +167,10 @@ namespace PhysicsEngine
 	};
 
 
-	class CourseBarriers : public DynamicActor
+	class CourseBarriers : public StaticActor
 	{
 	public:
-		CourseBarriers(const PxTransform& pose = PxTransform(PxIdentity), PxReal density = 1.f, PxVec3 secondShape = PxVec3()) : DynamicActor(pose)
+		CourseBarriers(const PxTransform& pose = PxTransform(PxIdentity), PxReal density = 1.f, PxVec3 secondShape = PxVec3()) : StaticActor(pose)
 		{
 			CreateShape(PxBoxGeometry(PxVec3(.2f, .2f, 24.f)), density);
 			CreateShape(PxBoxGeometry(PxVec3(.2f, .2f, 24.f)), density);
@@ -184,10 +184,10 @@ namespace PhysicsEngine
 	};
 
 
-	class WindmillBase : public DynamicActor
+	class WindmillBase : public StaticActor
 	{
 	public:
-		WindmillBase(const PxTransform& pose = PxTransform(PxIdentity), PxReal density = 1.f, PxVec3 secondShape = PxVec3()) : DynamicActor(pose)
+		WindmillBase(const PxTransform& pose = PxTransform(PxIdentity), PxReal density = 1.f, PxVec3 secondShape = PxVec3()) : StaticActor(pose)
 		{
 			CreateShape(PxBoxGeometry(PxVec3(1.5f, 2.f, 2.f)), density);
 			CreateShape(PxBoxGeometry(PxVec3(1.5f, 2.f, 2.f)), density);
@@ -359,8 +359,8 @@ namespace PhysicsEngine
 				for (PxU32 i = 0; i < (width + 1); i++)
 				{
 					PxU32 offset = i + j*(width + 1);
-					vertices[offset].pos = PxVec3(w_step*i, 0.f, h_step*j);
-					if (fix_top && (j == 0) && (i == 0)) //fix the first vertice
+					vertices[offset].pos = PxVec3(w_step*i, h_step*j, 0.f);
+					if (fix_top && (i == 0)) //fix the first vertice
 						vertices[offset].invWeight = 0.f;
 					else
 						vertices[offset].invWeight = 1.f;

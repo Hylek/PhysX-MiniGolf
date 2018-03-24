@@ -262,7 +262,6 @@ namespace PhysicsEngine
 			Add(ball);
 
 			teeBox = new TeeBox(PxTransform(PxVec3(0.f, 0.f, 0.f)));
-			teeBox->SetKinematic(true);
 			teeBox->Color(PxVec3(60.f / 255.f, 60.f / 255.f, 60.f / 255.f));
 			teeBox->SetupFiltering(FilterGroup::ACTOR1, FilterGroup::ACTOR0);
 			teeBox->Material(concrete);
@@ -299,12 +298,9 @@ namespace PhysicsEngine
 			planes->Material(planeMaterial);
 			Add(planes);
 			Add(barriers);
-			planes->SetKinematic(true);
-			barriers->SetKinematic(true);
 
 			windmillBase = new WindmillBase(PxTransform(PxVec3(.0f, .0f, .0f)));
 			windmillBase->Color(PxVec3(255.f / 255.f, 0 / 255.f, 0 / 255.f));
-			windmillBase->SetKinematic(true);
 			Add(windmillBase);
 
 		
@@ -331,8 +327,9 @@ namespace PhysicsEngine
 			flagPole->SetKinematic(true);
 			Add(flagPole);
 
-			poleFlag = new Cloth(PxTransform(PxVec3(0.1f, 7.4f, -45.5f)/*, PxQuat(90.f, 0, 0, 0)*/), PxVec2(2.f, 1.5f), 40, 40, true);
-			((PxCloth*)poleFlag->Get())->setExternalAcceleration(PxVec3(15.f, .0f, .0f));
+			poleFlag = new Cloth(PxTransform(PxVec3(0.1f, 6.5f, -45.5f))/*, PxQuat(9.f, 0, 0, 0))*/, PxVec2(2.f, 1.5f), 40, 40, true);
+			poleFlag->Color(PxVec3(255.f / 255.f, 255.f / 255.f, 0.f / 255.f));
+			((PxCloth*)poleFlag->Get())->setExternalAcceleration(PxVec3(11.f, 1.f, .5f));
 			Add(poleFlag);
 
 			//planes->Material(planeMaterial);
