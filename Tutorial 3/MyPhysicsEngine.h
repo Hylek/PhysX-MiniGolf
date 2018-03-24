@@ -42,8 +42,10 @@ namespace PhysicsEngine
 		{
 			ACTOR0		= (1 << 0),
 			ACTOR1		= (1 << 1),
-			ACTOR2		= (1 << 2)
+			ACTOR2		= (1 << 2),
 			//add more if you need
+			GOLFBALL    = (1 << 3),
+			FLAGPOLE    = (1 << 4)
 		};
 	};
 
@@ -213,6 +215,7 @@ namespace PhysicsEngine
 
 		//bool switchTriggers = false;
 		bool swingBack = false;
+		bool hasWon = false;
 
 
 		// Course objects
@@ -241,29 +244,31 @@ namespace PhysicsEngine
 		{
 			SetVisualisation();
 
-			//GetMaterial()->setDynamicFriction(.2f);
+			GetMaterial()->setDynamicFriction(.2f);
 
 			///Initialise and set the customised event callback
 			my_callback = new MySimulationEventCallback();
 			px_scene->setSimulationEventCallback(my_callback);
 
-			//planeMaterial = GetPhysics()->createMaterial(.30f, 1.f, .1f);
+
+			planeMaterial = GetPhysics()->createMaterial(.1f, .1f, .1f);
 			barrierMaterial = GetPhysics()->createMaterial(0.f, 0.f, 1.f);
-			concrete = GetPhysics()->createMaterial(.8f, 0.6f, .4f);
-			ballMaterial = GetPhysics()->createMaterial(.6f, .4f, .4f);
+			concrete = GetPhysics()->createMaterial(.4f, .6f, .4f);
+			ballMaterial = GetPhysics()->createMaterial(.4f, .15f, .4f);
 
 			ball = new Sphere(PxTransform(PxVec3(.0f, 10.f, -2.5f)), .2f);
 			ball->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
 			ball->Name("golfball");
 			((PxRigidBody*)ball->Get())->setMass(0.045f);
 			((PxRigidBody*)ball->Get())->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
+			((PxRigidDynamic*)ball->Get())->setLinearDamping(.05f);
 			ball->Material(ballMaterial);
-			ball->SetupFiltering(FilterGroup::ACTOR0, FilterGroup::ACTOR1);
+			ball->SetupFiltering(FilterGroup::GOLFBALL, FilterGroup::FLAGPOLE);
 			Add(ball);
+
 
 			teeBox = new TeeBox(PxTransform(PxVec3(0.f, 0.f, 0.f)));
 			teeBox->Color(PxVec3(60.f / 255.f, 60.f / 255.f, 60.f / 255.f));
-			teeBox->SetupFiltering(FilterGroup::ACTOR1, FilterGroup::ACTOR0);
 			teeBox->Material(concrete);
 			Add(teeBox);
 
@@ -284,6 +289,7 @@ namespace PhysicsEngine
 			putter->Color(color_palette[2]);
 			((PxRigidBody*)putter->Get())->setMass(0.355f);
 			Add(putter);
+
 			//putter->SetKinematic(true);
 			//((PxRigidBody*)putter->Get())->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 			// pJoint(putterJoint, PxTransform(PxVec3(0.f, -4.f, 0.f), PxQuat(PxPi / 2, PxVec3(1.f, 0.f, 0.f))), putter, PxTransform(PxVec3(0.f, 5.f, 0.f)));
@@ -325,6 +331,7 @@ namespace PhysicsEngine
 
 			flagPole = new Box(PxTransform(PxVec3(.0f, 4.4f, -45.5f)), PxVec3(.1f, 4.f, .1f));
 			flagPole->SetKinematic(true);
+			flagPole->SetupFiltering(FilterGroup::FLAGPOLE, FilterGroup::GOLFBALL);
 			Add(flagPole);
 
 			poleFlag = new Cloth(PxTransform(PxVec3(0.1f, 6.5f, -45.5f))/*, PxQuat(9.f, 0, 0, 0))*/, PxVec2(2.f, 1.5f), 40, 40, true);
@@ -362,6 +369,17 @@ namespace PhysicsEngine
 			//cerr << speed << endl;
 			((PxRigidDynamic*)putter->Get())->wakeUp();
 
+			//cerr << "x= " << ((PxRigidBody*)ball->Get())->getLinearVelocity().x << endl;
+		//	cerr << "y= " << ((PxRigidBody*)ball->Get())->getLinearVelocity().y << endl;
+			cerr << "z= " << ((PxRigidBody*)ball->Get())->getLinearVelocity().z << endl;
+
+			if (((PxRigidBody*)ball->Get())->getLinearVelocity().z < -1.2f)
+			{
+				//((PxRigidBody*)ball->Get())->clearForce(PxForceMode::eFORCE);
+				
+			}
+
+
 			if (pJointLocation.p.y <= 9.4f)
 			{
 				pJointLocation.p.y = 9.4f;
@@ -375,6 +393,10 @@ namespace PhysicsEngine
 			if(my_callback->trigger)
 			{
 				cerr << "YOU SCORED" << endl;
+				hasWon = true;
+			}
+			if (hasWon)
+			{
 
 			}
 
@@ -382,7 +404,7 @@ namespace PhysicsEngine
 			
 		void ResetBall() const
 		{
-			((PxRigidBody*)ball->Get())->setGlobalPose(PxTransform(PxVec3(.0f, 10.f, -2.5f)));
+			((PxRigidBody*)ball->Get())->setGlobalPose(PxTransform(PxVec3(.0f, 4.f, -2.5f)));
 			((PxRigidBody*)ball->Get())->setLinearVelocity(PxVec3(.0f, .0f, .0f));
 		}
 
