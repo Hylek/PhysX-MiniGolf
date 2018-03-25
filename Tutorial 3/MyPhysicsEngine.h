@@ -181,9 +181,10 @@ namespace PhysicsEngine
 			//trigger onContact callback for this pair of objects
 			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;
 			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_LOST;
+			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_CCD;
 
 			// Return ekill to ignore the collision between the golfball and flagpole
-			return PxFilterFlag::eKILL | PxFilterFlag::eNOTIFY;
+			//return PxFilterFlag::eKILL | PxFilterFlag::eNOTIFY;
 		}
 
 		return PxFilterFlags();
@@ -259,7 +260,6 @@ namespace PhysicsEngine
 			my_callback = new MySimulationEventCallback();
 			px_scene->setSimulationEventCallback(my_callback);
 
-
 			planeMaterial = GetPhysics()->createMaterial(.4f, .3f, .1f);
 			barrierMaterial = GetPhysics()->createMaterial(0.f, 0.f, .6f);
 			concrete = GetPhysics()->createMaterial(.4f, .6f, .4f);
@@ -267,80 +267,86 @@ namespace PhysicsEngine
 			ballMaterial = GetPhysics()->createMaterial(.4f, .15f, .4f);
 			ballMaterial->setFrictionCombineMode(PxCombineMode::eAVERAGE);
 
+			PxReal offset = 0;
+			for (int i = 0; i < 1; i++)
+			{
+				ball = new Sphere(PxTransform(PxVec3(.0f + offset, 10.f, -2.5f)), .2f);
+				ball->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
+				ball->Name("GolfBall");
+				((PxRigidBody*)ball->Get())->setMass(0.045f);
+				//((PxRigidBody*)ball->Get())->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
+				((PxRigidDynamic*)ball->Get())->setLinearDamping(.25f);
+				ball->Material(ballMaterial);
 
-			ball = new Sphere(PxTransform(PxVec3(.0f, 10.f, -2.5f)), .2f);
-			ball->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
-			ball->Name("GolfBall");
-			((PxRigidBody*)ball->Get())->setMass(0.045f);
-			((PxRigidBody*)ball->Get())->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
-			((PxRigidDynamic*)ball->Get())->setLinearDamping(.25f);
-			ball->Material(ballMaterial);
-
-			// filter the golfball 
-			ball->SetupFiltering(FilterGroup::GOLFBALL, FilterGroup::FLAGPOLE);
-			Add(ball);
+				// filter the golfball 
+				ball->SetupFiltering(FilterGroup::GOLFBALL, FilterGroup::FLAGPOLE);
+				Add(ball);
 
 
-			teeBox = new TeeBox(PxTransform(PxVec3(0.f, 0.f, -2.5f)));
-			teeBox->Color(PxVec3(60.f / 255.f, 60.f / 255.f, 60.f / 255.f));
-			teeBox->Material(concrete);
-			Add(teeBox);
+				teeBox = new TeeBox(PxTransform(PxVec3(0.f + offset, 0.f, -2.5f)));
+				teeBox->Color(PxVec3(60.f / 255.f, 60.f / 255.f, 60.f / 255.f));
+				teeBox->Material(concrete);
+				Add(teeBox);
 
-			putterJoint = new Box(PxTransform(PxVec3(0.f, 10.f, 0.f)));
-			putterJoint->SetKinematic(true);
-			Add(putterJoint);
+				putterJoint = new Box(PxTransform(PxVec3(0.f + offset, 10.f, 0.f)));
+				putterJoint->SetKinematic(true);
+				Add(putterJoint);
 
-			putter = new Putter(PxTransform(PxVec3(.1f, 5.f, .0f)));
-			putter->Color(color_palette[2]);
-			putter->Name("Putter");
-			putter->SetupFiltering(FilterGroup::PUTTER, FilterGroup::GOLFBALL);
-			((PxRigidBody*)putter->Get())->setMass(0.355f);
-			Add(putter);
+				putter = new Putter(PxTransform(PxVec3(.1f + offset, 5.f, .0f)));
+				putter->Color(color_palette[2]);
+				putter->Name("Putter");
+				//((PxRigidBody*)putter->Get())->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
+				putter->SetupFiltering(FilterGroup::PUTTER, FilterGroup::GOLFBALL);
+				((PxRigidBody*)putter->Get())->setMass(0.355f);
+				Add(putter);
 
-			pJoint = new RevoluteJoint(putterJoint, PxTransform(PxVec3(0.f, -4.f, 0.f), PxQuat(PxPi / 2, PxVec3(1.f, 0.f, 0.f))), putter, PxTransform(PxVec3(0.f, 5.f, 0.f)));
-			pJoint->SetLimits(-PxPi / 1.4f, -PxPi / 3.5f);
+				pJoint = new RevoluteJoint(putterJoint, PxTransform(PxVec3(0.f, -4.f, 0.f), PxQuat(PxPi / 2, PxVec3(1.f, 0.f, 0.f))), putter, PxTransform(PxVec3(0.f, 5.f, 0.f)));
+				pJoint->SetLimits(-PxPi / 1.4f, -PxPi / 3.5f);
 
-			planes = new CoursePlanes(PxTransform(PxVec3(.0f, .0f, .0f)));
-			barriers = new CourseBarriers(PxTransform(PxVec3(.0f, 1.f, .0f)));
-			sandBank = new SandBank(PxTransform(PxVec3(.0f, .0f, .0f)));
+				planes = new CoursePlanes(PxTransform(PxVec3(.0f + offset, .0f, .0f)));
+				barriers = new CourseBarriers(PxTransform(PxVec3(.0f + offset, 1.f, .0f)));
+				sandBank = new SandBank(PxTransform(PxVec3(.0f + offset, .0f, .0f)));
 
-			planes->Color(PxVec3(0.f / 255.f, 160.f / 255.f, 20.f / 255.f));
-			barriers->Color(PxVec3(178.f / 255.f, 70.f / 255.f, 34.f / 255.f));
-			sandBank->Color(PxVec3(235.f / 235.f, 255.f / 255.f, 0.f / 255.f));
-			sandBank->Material(sand);
-			planes->Material(planeMaterial);
-			Add(planes);
-			Add(barriers);
-			Add(sandBank);
+				planes->Color(PxVec3(0.f / 255.f, 160.f / 255.f, 20.f / 255.f));
+				barriers->Color(PxVec3(178.f / 255.f, 70.f / 255.f, 34.f / 255.f));
+				sandBank->Color(PxVec3(235.f / 235.f, 255.f / 255.f, 0.f / 255.f));
+				sandBank->Material(sand);
+				planes->Material(planeMaterial);
+				Add(planes);
+				Add(barriers);
+				Add(sandBank);
 
-			windmillBase = new WindmillBase(PxTransform(PxVec3(.0f, .0f, .0f)));
-			windmillBase->Color(PxVec3(255.f / 255.f, 0 / 255.f, 0 / 255.f));
-			Add(windmillBase);
+				windmillBase = new WindmillBase(PxTransform(PxVec3(.0f + offset, .0f, .0f)));
+				windmillBase->Color(PxVec3(255.f / 255.f, 0 / 255.f, 0 / 255.f));
+				Add(windmillBase);
 
-		
-			windmillBlades = new WindmillBlades(PxTransform(PxVec3(.0f, 6.5f, -19.5f)));
-			Add(windmillBlades);
 
-			windmillCenter = new Box(PxTransform(PxVec3(0.f, 6.5f, -19.5f)));
-			windmillCenter->SetKinematic(true);
-			Add(windmillCenter);
+				windmillBlades = new WindmillBlades(PxTransform(PxVec3(.0f + offset, 6.5f, -19.5f)));
+				Add(windmillBlades);
 
-			windmillJoint = new RevoluteJoint(windmillCenter, PxTransform(PxVec3(0.f, 0.f, 0.f), PxQuat(PxPi / 2, PxVec3(0.f, 1.f, 0.f))), windmillBlades, PxTransform(PxVec3(0.f, 0.f, 0.f)));
-			windmillJoint->DriveVelocity(1);
+				windmillCenter = new Box(PxTransform(PxVec3(0.f + offset, 6.5f, -19.5f)));
+				windmillCenter->SetKinematic(true);
+				Add(windmillCenter);
 
-			holeTrigger = new StaticBox(PxTransform(PxVec3(0, -2.f, -45.5f)), PxVec3(2.f, .1f, 2.f));
-			holeTrigger->SetTrigger(true);
-			Add(holeTrigger);
+				windmillJoint = new RevoluteJoint(windmillCenter, PxTransform(PxVec3(0.f, 0.f, 0.f), PxQuat(PxPi / 2, PxVec3(0.f, 1.f, 0.f))), windmillBlades, PxTransform(PxVec3(0.f, 0.f, 0.f)));
+				windmillJoint->DriveVelocity(1);
 
-			flagPole = new StaticBox(PxTransform(PxVec3(.0f, 4.4f, -45.5f)), PxVec3(.1f, 4.f, .1f));
-			flagPole->SetupFiltering(FilterGroup::FLAGPOLE, FilterGroup::GOLFBALL);
-			flagPole->Name("FlagPole");
-			Add(flagPole);
+				holeTrigger = new StaticBox(PxTransform(PxVec3(0 + offset, -2.f, -45.5f)), PxVec3(2.f, .1f, 2.f));
+				holeTrigger->SetTrigger(true);
+				Add(holeTrigger);
 
-			poleFlag = new Cloth(PxTransform(PxVec3(0.1f, 6.5f, -45.5f)), PxVec2(2.f, 1.5f), 40, 40, true);
-			poleFlag->Color(PxVec3(255.f / 255.f, 255.f / 255.f, 0.f / 255.f));
-			((PxCloth*)poleFlag->Get())->setExternalAcceleration(PxVec3(11.f, 1.f, .5f));
-			Add(poleFlag);
+				flagPole = new StaticBox(PxTransform(PxVec3(.0f + offset, 4.4f, -45.5f)), PxVec3(.1f, 4.f, .1f));
+				flagPole->SetupFiltering(FilterGroup::FLAGPOLE, FilterGroup::GOLFBALL);
+				flagPole->Name("FlagPole");
+				Add(flagPole);
+
+				poleFlag = new Cloth(PxTransform(PxVec3(0.1f + offset, 6.5f, -45.5f)), PxVec2(2.f, 1.5f), 40, 40, true);
+				poleFlag->Color(PxVec3(255.f / 255.f, 255.f / 255.f, 0.f / 255.f));
+				((PxCloth*)poleFlag->Get())->setExternalAcceleration(PxVec3(11.f, 1.f, .5f));
+				Add(poleFlag);
+
+				offset += 10;
+			}
 
 
 			px_scene->setVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS, 1.0f);
@@ -423,14 +429,16 @@ namespace PhysicsEngine
 
 		void SetSpeed()
 		{
-			if (speed <= 30.f)
-			{
-				speed++;
-			}
-			else
-			{
-				speed = 0;
-			}
+			//if (speed <= 30.f)
+			//{
+			//	speed++;
+			//}
+			//else
+			//{
+			//	speed = 0;
+			//}
+
+			speed = 50;
 		}
 
 		void MovePutterForward() const

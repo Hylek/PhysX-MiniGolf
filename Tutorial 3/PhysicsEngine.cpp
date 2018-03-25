@@ -276,6 +276,7 @@ namespace PhysicsEngine
 		if (pause)
 			return;
 
+		//cerr << dt << endl;
 		CustomUpdate();
 
 		px_scene->simulate(dt);

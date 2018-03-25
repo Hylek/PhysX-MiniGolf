@@ -39,7 +39,7 @@ namespace VisualDebugger
 	///simulation objects
 	Camera* camera;
 	PhysicsEngine::MyScene* scene;
-	PxReal delta_time = 1.f/60.f;
+	PxReal delta_time = 1.f/120.f;
 	PxReal gForceStrength = 20;
 	RenderMode render_mode = NORMAL;
 	const int MAX_KEYS = 256;

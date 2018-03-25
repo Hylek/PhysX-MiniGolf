@@ -430,4 +430,14 @@ namespace PhysicsEngine
 			delete (UserData*)actor->userData;
 		}
 	};
+
+	class CourseInstance
+	{
+	public:
+
+		CourseInstance()
+		{
+
+		}
+	};
 }
