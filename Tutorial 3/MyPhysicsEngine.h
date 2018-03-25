@@ -43,7 +43,6 @@ namespace PhysicsEngine
 			ACTOR0		= (1 << 0),
 			ACTOR1		= (1 << 1),
 			ACTOR2		= (1 << 2),
-			//add more if you need
 			GOLFBALL    = (1 << 3),
 			FLAGPOLE    = (1 << 4),
 			PUTTER      = (1 << 5)
@@ -110,10 +109,6 @@ namespace PhysicsEngine
 					if (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 					{
 						cerr << "onTrigger::eNOTIFY_TOUCH_FOUND" << endl;
-						//if(pairs[i].otherActor->getName() == "golfball")
-						//{
-						//	cerr << "YOU SCORED!" << endl;
-						//}
 
 						trigger = true;
 					}
@@ -204,6 +199,7 @@ namespace PhysicsEngine
 		Putter* putter;
 		WindmillBase* windmillBase;
 		WindmillBlades* windmillBlades;
+		SandBank* sandBank;
 		Box* windmillCenter;
 		StaticBox* holeTrigger;
 		StaticBox* flagPole;
@@ -213,14 +209,18 @@ namespace PhysicsEngine
 
 		PxMaterial* concrete;
 		PxMaterial* ballMaterial;
+		PxMaterial* sand;
 
 		RevoluteJoint* pJoint;
+		RevoluteJoint* windmillJoint;
 		TeeBox* teeBox;
 		Cloth* poleFlag;
+
 
 		PxTransform pJointLocation;
 
 		PxReal speed = 0;
+		PxReal bladeSpeed = 1;
 
 		//bool switchTriggers = false;
 		bool swingBack = false;
@@ -260,9 +260,10 @@ namespace PhysicsEngine
 			px_scene->setSimulationEventCallback(my_callback);
 
 
-			planeMaterial = GetPhysics()->createMaterial(.1f, .1f, .1f);
+			planeMaterial = GetPhysics()->createMaterial(.4f, .3f, .1f);
 			barrierMaterial = GetPhysics()->createMaterial(0.f, 0.f, .6f);
 			concrete = GetPhysics()->createMaterial(.4f, .6f, .4f);
+			sand = GetPhysics()->createMaterial(5.f, 8.f, .0f);
 			ballMaterial = GetPhysics()->createMaterial(.4f, .15f, .4f);
 			ballMaterial->setFrictionCombineMode(PxCombineMode::eAVERAGE);
 
@@ -272,7 +273,7 @@ namespace PhysicsEngine
 			ball->Name("GolfBall");
 			((PxRigidBody*)ball->Get())->setMass(0.045f);
 			((PxRigidBody*)ball->Get())->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
-			((PxRigidDynamic*)ball->Get())->setLinearDamping(.3f);
+			((PxRigidDynamic*)ball->Get())->setLinearDamping(.25f);
 			ball->Material(ballMaterial);
 
 			// filter the golfball 
@@ -301,12 +302,16 @@ namespace PhysicsEngine
 
 			planes = new CoursePlanes(PxTransform(PxVec3(.0f, .0f, .0f)));
 			barriers = new CourseBarriers(PxTransform(PxVec3(.0f, 1.f, .0f)));
+			sandBank = new SandBank(PxTransform(PxVec3(.0f, .0f, .0f)));
 
 			planes->Color(PxVec3(0.f / 255.f, 160.f / 255.f, 20.f / 255.f));
 			barriers->Color(PxVec3(178.f / 255.f, 70.f / 255.f, 34.f / 255.f));
+			sandBank->Color(PxVec3(235.f / 235.f, 255.f / 255.f, 0.f / 255.f));
+			sandBank->Material(sand);
 			planes->Material(planeMaterial);
 			Add(planes);
 			Add(barriers);
+			Add(sandBank);
 
 			windmillBase = new WindmillBase(PxTransform(PxVec3(.0f, .0f, .0f)));
 			windmillBase->Color(PxVec3(255.f / 255.f, 0 / 255.f, 0 / 255.f));
@@ -320,8 +325,8 @@ namespace PhysicsEngine
 			windmillCenter->SetKinematic(true);
 			Add(windmillCenter);
 
-			RevoluteJoint windmillJoint(windmillCenter, PxTransform(PxVec3(0.f, 0.f, 0.f), PxQuat(PxPi / 2, PxVec3(0.f, 1.f, 0.f))), windmillBlades, PxTransform(PxVec3(0.f, 0.f, 0.f)));
-			windmillJoint.DriveVelocity(1);
+			windmillJoint = new RevoluteJoint(windmillCenter, PxTransform(PxVec3(0.f, 0.f, 0.f), PxQuat(PxPi / 2, PxVec3(0.f, 1.f, 0.f))), windmillBlades, PxTransform(PxVec3(0.f, 0.f, 0.f)));
+			windmillJoint->DriveVelocity(1);
 
 			holeTrigger = new StaticBox(PxTransform(PxVec3(0, -2.f, -45.5f)), PxVec3(2.f, .1f, 2.f));
 			holeTrigger->SetTrigger(true);
@@ -332,7 +337,7 @@ namespace PhysicsEngine
 			flagPole->Name("FlagPole");
 			Add(flagPole);
 
-			poleFlag = new Cloth(PxTransform(PxVec3(0.1f, 6.5f, -45.5f))/*, PxQuat(9.f, 0, 0, 0))*/, PxVec2(2.f, 1.5f), 40, 40, true);
+			poleFlag = new Cloth(PxTransform(PxVec3(0.1f, 6.5f, -45.5f)), PxVec2(2.f, 1.5f), 40, 40, true);
 			poleFlag->Color(PxVec3(255.f / 255.f, 255.f / 255.f, 0.f / 255.f));
 			((PxCloth*)poleFlag->Get())->setExternalAcceleration(PxVec3(11.f, 1.f, .5f));
 			Add(poleFlag);
@@ -358,7 +363,7 @@ namespace PhysicsEngine
 			PxTransform ballPose = ((PxRigidBody*)ball->Get())->getGlobalPose();
 			if (ballPose.p.y <= -5 && !hasWon)
 			{
-				cerr << "YOU LOSE" << endl;
+				ResetBall();
 			}
 
 			if (pJointLocation.p.y <= 9.4f)
@@ -376,17 +381,26 @@ namespace PhysicsEngine
 				cerr << "YOU WIN" << endl;
 				hasWon = true;
 			}
+
 			if (hasWon)
 			{
-
+				windmillBase->Color(PxVec3(0.f / 255.f, 255.f / 255.f, 0.f / 255.f));
+				windmillJoint->DriveVelocity(5);
+			}
+			else
+			{
+				windmillBase->Color(PxVec3(255.f / 255.f, 0.f / 255.f, 0.f / 255.f));
 			}
 
 		}
 			
-		void ResetBall() const
+		void ResetBall()
 		{
 			((PxRigidBody*)ball->Get())->setGlobalPose(PxTransform(PxVec3(.0f, 4.f, -2.5f)));
 			((PxRigidBody*)ball->Get())->setLinearVelocity(PxVec3(.0f, .0f, .0f));
+			((PxRigidBody*)ball->Get())->setAngularVelocity(PxVec3(.0f, .0f, .0f));
+			hasWon = false;
+			windmillJoint->DriveVelocity(1);
 		}
 
 		void Fire()
@@ -397,7 +411,6 @@ namespace PhysicsEngine
 
 		void SwingBack()
 		{
-			//pJoint->DriveVelocity(2);
 			((PxRigidBody*)putter->Get())->addForce(PxVec3(.0f, .0f, 1.f), PxForceMode::eIMPULSE);
 			swingBack = true;
 			speed = 0;
@@ -405,9 +418,7 @@ namespace PhysicsEngine
 
 		void ReleaseMotor() const
 		{
-			//pJoint->DriveVelocity(0);
 			((PxRigidBody*)putter->Get())->addForce(PxVec3(.0f, .0f, -10.f), PxForceMode::eIMPULSE);
-
 		}
 
 		void SetSpeed()
