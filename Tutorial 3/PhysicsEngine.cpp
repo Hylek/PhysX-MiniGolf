@@ -172,9 +172,9 @@ namespace PhysicsEngine
 		for (PxU32 i = 0; i < shape_list.size(); i++)
 			shape_list[i]->setSimulationFilterData(PxFilterData(filterGroup, filterMask,0,0));
 
-		// PxFilterData(word0, word1, 0, 0)
-		// word0 = own ID
-		// word1 = ID mask to filter pairs that trigger a contact callback
+		PxFilterData filterData;
+		filterData.word0 = filterGroup;
+		filterData.word1 = filterMask;
 	}
 
 	void Actor::Name(const string& new_name)
@@ -252,7 +252,7 @@ namespace PhysicsEngine
 
 		sceneDesc.filterShader = filter_shader;
 		
-		//sceneDesc.flags |= PxSceneFlag::eENABLE_CCD;
+		sceneDesc.flags |= PxSceneFlag::eENABLE_CCD;
 
 		px_scene = GetPhysics()->createScene(sceneDesc);
 

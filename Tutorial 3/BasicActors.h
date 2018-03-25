@@ -48,6 +48,20 @@ namespace PhysicsEngine
 		}
 	};
 
+	class StaticBox : public StaticActor
+	{
+	public:
+		//a Box with default parameters:
+		// - pose in 0,0,0
+		// - dimensions: 1m x 1m x 1m
+		// - denisty: 1kg/m^3
+		StaticBox(const PxTransform& pose = PxTransform(PxIdentity), PxVec3 dimensions = PxVec3(.5f, .5f, .5f), PxReal density = 1.f)
+			: StaticActor(pose)
+		{
+			CreateShape(PxBoxGeometry(dimensions), density);
+		}
+	};
+
 	class Capsule : public DynamicActor
 	{
 	public:
@@ -152,6 +166,7 @@ namespace PhysicsEngine
 			GetShape(2)->setLocalPose(PxTransform(PxVec3(2.2f, 0.f, -45.8f)));
 			CreateShape(PxBoxGeometry(PxVec3(1.8f, .25f, 1.f)), density);
 			GetShape(3)->setLocalPose(PxTransform(PxVec3(-2.2f, 0.f, -45.8f)));
+		
 		}
 	};
 
@@ -162,7 +177,6 @@ namespace PhysicsEngine
 		{
 			// Create course plane length
 			CreateShape(PxBoxGeometry(PxVec3(4.f, .25f, 2.5f)), density);
-			GetShape(0)->setLocalPose(PxTransform(PxVec3(0.f, 0.f, -2.5f)));
 		}
 	};
 

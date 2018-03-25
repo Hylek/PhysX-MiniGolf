@@ -174,14 +174,17 @@ namespace VisualDebugger
 		switch (toupper(key))
 		{
 		//implement your own
+			case 'B':
+				scene->ResetBall();
+				break;
 			case 'R':
 				scene->RotatePutterLeft();
 				break;
 			case 'Y':
 				scene->RotatePutterRight();
 				break;
-			case 'B':
-				scene->ResetBall();
+			case 'V':
+				scene->ResetRotation();
 				break;
 		default:
 			break;
@@ -232,12 +235,6 @@ namespace VisualDebugger
 		case 'P':
 			scene->SetSpeed();
 			break;
-		//case 'R':
-		//	scene->RotatePutterLeft();
-		//	break;
-		//case 'Y':
-		//	scene->RotatePutterRight();
-		//	break;
 		default:
 			break;
 		}
