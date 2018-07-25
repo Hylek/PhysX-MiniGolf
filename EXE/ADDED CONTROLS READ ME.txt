@@ -1,0 +1,11 @@
+ADDED CONTROLS:
+T – Move Putter Forward
+G – Move Putter Backwards
+F – Move Putter Left
+H – Move Putter Right
+B – Reset Ball
+R – Rotate Putter Left
+Y – Rotate Putter Right
+V – Reset Putter Rotation
+O – Swing Back Putter (Single Press)
+P – Fire (Hold for variable speed (See Console for value))
